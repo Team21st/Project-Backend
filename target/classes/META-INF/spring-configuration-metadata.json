@@ -1,0 +1,17 @@
+{
+  "groups": [
+    {
+      "name": "white",
+      "type": "com.CS353.cs353project.config.HCRMSProperties",
+      "sourceType": "com.CS353.cs353project.config.HCRMSProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "white.login-interceptor-exclude-path",
+      "type": "java.util.List<java.lang.String>",
+      "sourceType": "com.CS353.cs353project.config.HCRMSProperties"
+    }
+  ],
+  "hints": []
+}
