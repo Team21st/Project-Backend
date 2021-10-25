@@ -17,9 +17,6 @@ public class UserLoginEvt {
     @NotBlank(message = "Password cannot be empty")
     @ApiModelProperty(value = "用户密码", required = true)
     private String userPassword;
-    //验证码
-    @NotBlank(message = "Code cannot be empty")
-    @ApiModelProperty(value = "验证码", required = true)
-    private String code;
+
 
 }

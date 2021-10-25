@@ -1,16 +1,87 @@
 {
   "groups": [
     {
+      "name": "aliyun.oss",
+      "type": "com.CS353.cs353project.config.AliyunOssConfig",
+      "sourceType": "com.CS353.cs353project.config.AliyunOssConfig"
+    },
+    {
       "name": "white",
-      "type": "com.CS353.cs353project.config.HCRMSProperties",
-      "sourceType": "com.CS353.cs353project.config.HCRMSProperties"
+      "type": "com.CS353.cs353project.config.SHBMProperties",
+      "sourceType": "com.CS353.cs353project.config.SHBMProperties"
     }
   ],
   "properties": [
     {
+      "name": "aliyun.oss.access-key-id",
+      "type": "java.lang.String",
+      "description": "阿里云 oss 公钥",
+      "sourceType": "com.CS353.cs353project.config.AliyunOssConfig"
+    },
+    {
+      "name": "aliyun.oss.access-key-secret",
+      "type": "java.lang.String",
+      "description": "阿里云 oss 私钥",
+      "sourceType": "com.CS353.cs353project.config.AliyunOssConfig"
+    },
+    {
+      "name": "aliyun.oss.bucket-name",
+      "type": "java.lang.String",
+      "description": "阿里云 oss 文件根目录",
+      "sourceType": "com.CS353.cs353project.config.AliyunOssConfig"
+    },
+    {
+      "name": "aliyun.oss.endpoint",
+      "type": "java.lang.String",
+      "description": "阿里云 oss 站点",
+      "sourceType": "com.CS353.cs353project.config.AliyunOssConfig"
+    },
+    {
+      "name": "aliyun.oss.j-a-v-a-a-c-c-e-s-s-k-e-y-i-d",
+      "type": "java.lang.String",
+      "sourceType": "com.CS353.cs353project.config.AliyunOssConfig"
+    },
+    {
+      "name": "aliyun.oss.j-a-v-a-a-c-c-e-s-s-k-e-y-s-e-c-r-e-t",
+      "type": "java.lang.String",
+      "sourceType": "com.CS353.cs353project.config.AliyunOssConfig"
+    },
+    {
+      "name": "aliyun.oss.j-a-v-a-b-u-c-k-e-t-n-a-m-e",
+      "type": "java.lang.String",
+      "sourceType": "com.CS353.cs353project.config.AliyunOssConfig"
+    },
+    {
+      "name": "aliyun.oss.j-a-v-a-e-n-d-p-o-i-n-t",
+      "type": "java.lang.String",
+      "sourceType": "com.CS353.cs353project.config.AliyunOssConfig"
+    },
+    {
+      "name": "aliyun.oss.j-a-v-a-m-a-x-s-i-z-e",
+      "type": "java.lang.Long",
+      "sourceType": "com.CS353.cs353project.config.AliyunOssConfig"
+    },
+    {
+      "name": "aliyun.oss.j-a-v-a-p-o-l-i-c-y-e-x-p-i-r-e",
+      "type": "java.lang.Long",
+      "sourceType": "com.CS353.cs353project.config.AliyunOssConfig"
+    },
+    {
+      "name": "aliyun.oss.max-size",
+      "type": "java.lang.Long",
+      "description": "上传文件大小(M)",
+      "sourceType": "com.CS353.cs353project.config.AliyunOssConfig"
+    },
+    {
+      "name": "aliyun.oss.policy-expire",
+      "type": "java.lang.Long",
+      "description": "url有效期(S)",
+      "sourceType": "com.CS353.cs353project.config.AliyunOssConfig"
+    },
+    {
       "name": "white.login-interceptor-exclude-path",
       "type": "java.util.List<java.lang.String>",
-      "sourceType": "com.CS353.cs353project.config.HCRMSProperties"
+      "sourceType": "com.CS353.cs353project.config.SHBMProperties"
     }
   ],
   "hints": []

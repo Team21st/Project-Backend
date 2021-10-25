@@ -5,6 +5,7 @@ import com.CS353.cs353project.anotation.PassToken;
 import com.CS353.cs353project.bean.UserBean;
 import com.CS353.cs353project.dao.mapper.UserMapper;
 import com.CS353.cs353project.exception.TokenUnavailableException;
+import com.CS353.cs353project.param.out.ServiceResp;
 import com.CS353.cs353project.utils.JwtUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 import java.lang.reflect.Method;
+import java.rmi.server.ServerCloneException;
 
 /**
  * @author Lehr
@@ -33,6 +36,7 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
         String token = httpServletRequest.getHeader("Authorization");
         // 如果不是映射到方法直接通过
         if (!(object instanceof HandlerMethod)) {
+
             return true;
         }
         HandlerMethod handlerMethod = (HandlerMethod) object;
@@ -42,6 +46,7 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
         if (method.isAnnotationPresent(PassToken.class)) {
             PassToken passToken = method.getAnnotation(PassToken.class);
             if (passToken.required()) {
+
                 return true;
             }
         }
@@ -49,7 +54,11 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
         else {
             // 执行认证
             if (token == null) {
-                httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                PrintWriter writer= httpServletResponse.getWriter();
+                writer.write("{\"respCode\":\"-1\",\"respMsg\":\"Authentication failed\"}");
+                writer.flush();
+                writer.close();
                 return false;
             }
 
@@ -59,7 +68,11 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
                 check = JwtUtils.getAudience(token);
             } catch (TokenUnavailableException e) {
                 logger.error(e.getMessage());
-                httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                PrintWriter writer= httpServletResponse.getWriter();
+                writer.write("{\"respCode\":\"-1\",\"respMsg\":\"Authentication failed\"}");
+                writer.flush();
+                writer.close();
                 return false;
             }
 
@@ -67,7 +80,6 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             UserBean user = userMapper.queryUserByNo(check);
             if (user == null) {
                 logger.error("此用户不存在");
-                httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 return false;
             }
 
@@ -90,13 +102,12 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             httpServletRequest.setAttribute("userName", userName);
             httpServletRequest.setAttribute("userEmail", userEmail);
             httpServletRequest.setAttribute("userNo", userNo);
-
-
             return true;
 
         }
         return true;
     }
+
 
     @Override
     public void postHandle(HttpServletRequest httpServletRequest,

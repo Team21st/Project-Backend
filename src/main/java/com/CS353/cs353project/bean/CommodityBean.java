@@ -17,42 +17,39 @@ import java.util.Date;
 @Table(name = "t_commodity")
 @TableName(value = "t_commodity")
 public class CommodityBean {
-    //商品编码
+    //图书编码
     @Id
-    @TableId("commNo")
-    @Column(name = "commNo", length = 32, nullable = false)
-    private String commNo;
-    //商品名称
-    @Column(name = "commName", length = 128, nullable = false)
-    private String commName;
+    @TableId("bookNo")
+    @Column(name = "bookNo", length = 32, nullable = false)
+    private String bookNo;
+    //图书名称
+    @Column(name = "bookName", length = 128, nullable = false)
+    private String bookName;
     //商家名称
-    @Column(name = "userName", length = 128, nullable = false)
-    private String userName;
-    //商品标签(0 衣物,1 数码,2 食品,3 图书,4 化妆品,5 文具,6 居家)
-    @Column(name = "commTag", nullable = false)
-    private Integer commTag;
-    //商品描述
-    @Column(name = "commDesc", length = 512, nullable = false)
-    private String commDesc;
-    //商品价格
-    @Column(name = "commPrice", length = 128, nullable = false)
-    private Double commPrice;
-    //商品销量
-    @Column(name = "commSale")
-    private Integer commSale;
-    //商品库存
-    @Column(name = "commStock", nullable = false)
-    private Integer commStock;
-    //推荐(0 未推荐, 1 推荐)
+    @Column(name = "userEmail", length = 128, nullable = false)
+    private String userEmail;
+    //图书标签(0 文艺,1 科幻)
+    @Column(name = "bookTag", nullable = false)
+    private String  bookTag;
+    //图书描述
+    @Column(name = "bookDesc", length = 512, nullable = false)
+    private String bookDesc;
+    //图书价格
+    @Column(name = "bookPrice", length = 128, nullable = false)
+    private Double bookPrice;
+    //图书销量
+    @Column(name = "bookSale")
+    private Integer bookSale;
+    //图书库存
+    @Column(name = "bookStock",nullable = false)
+    private Integer bookStock;
+    //推荐(0 未推荐, 1 推荐)(首页展示)
     @Column(name = "recommend", nullable = false)
     private Integer recommend;
     //自定义标签
     @Column(name = "customTags", length = 256)
     private String customTags;
-    //是否包邮(0 包邮，1 不包邮）
-    @Column(name = "isFreeShipping", nullable = false)
-    private Integer isFreeShipping;
-    //状态
+    //状态(E启用\D禁用)（商品状态）
     @Column(name = "status", length = 128, nullable = false)
     private String status;
     //创建时间
@@ -71,7 +68,7 @@ public class CommodityBean {
     private String updateUser;
     //审核状态(1 通过,0 审核中,2 审核不通过)
     @Column(name = "auditStatus", nullable = false)
-    private Integer auditStatus;
+    private String  auditStatus;
     //审核人
     @Column(name = "auditor", length = 128)
     private String auditor;
@@ -81,5 +78,11 @@ public class CommodityBean {
     //审核留言
     @Column(name = "auditMsg", length = 256)
     private String auditMsg;
+    //图书实物图地址
+    @Column(name = "bookPicUrl", length = 128, nullable = false)
+    private String bookPicUrl;
+    //图书新旧程度(ex:九五新:95)
+    @Column(name = "newOldDegree")
+    private Integer newOldDegree;
 
 }

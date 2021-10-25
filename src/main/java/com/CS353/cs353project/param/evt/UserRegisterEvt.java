@@ -3,7 +3,6 @@ package com.CS353.cs353project.param.evt;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -11,11 +10,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class UserRegisterEvt {
 
-    //用户姓名
-    @NotBlank(message = "User name cannot be empty")
-    @Length(min = 1, max = 20, message = "Nickname length cannot exceed 20")
-    @ApiModelProperty(value = "用户名称(限制长度20)", required = true)
-    private String userName;
+
     //用户邮箱
     @NotBlank(message = "Email can not be empty")
     @Email(message = "Email format is incorrect")

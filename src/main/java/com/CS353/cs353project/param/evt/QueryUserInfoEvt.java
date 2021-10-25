@@ -8,5 +8,5 @@ import lombok.Data;
 public class QueryUserInfoEvt {
     @ValidField(value = "用户编码", nullable = false)
     @ApiModelProperty(value = "用户编码", required = true)
-    private String userId;
+    private String userNo;
 }

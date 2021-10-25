@@ -99,4 +99,7 @@ public class UserBean {
     //更新人员
     @Column(name = "updateUser", length = 128)
     private String updateUser;
+    //用户生日
+    @Column(name = "birthday")
+    private Date birthday;
 }

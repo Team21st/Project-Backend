@@ -60,7 +60,7 @@ public class FileUploadController {
             }
             // 将上传文件保存到一个目标文件当中
             file1.renameTo(new File(path + File.separator + filename));
-            file1.deleteOnExit();//??
+            file1.deleteOnExit();//在JVM退出时删除文件
             return "success";
         } else {
             return "error";

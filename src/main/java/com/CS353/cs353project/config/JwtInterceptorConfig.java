@@ -12,13 +12,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @author lehr
  */
 @Configuration
-@EnableConfigurationProperties(HCRMSProperties.class)
+@EnableConfigurationProperties(SHBMProperties.class)
 public class JwtInterceptorConfig implements WebMvcConfigurer {
     @Autowired
-    private final HCRMSProperties hcrmsProperties;
+    private final SHBMProperties SHBMProperties;
 
-    public JwtInterceptorConfig(HCRMSProperties hcrmsProperties) {
-        this.hcrmsProperties = hcrmsProperties;
+    public JwtInterceptorConfig(SHBMProperties SHBMProperties) {
+        this.SHBMProperties = SHBMProperties;
     }
 
     @Override
@@ -27,7 +27,7 @@ public class JwtInterceptorConfig implements WebMvcConfigurer {
         //默认拦截所有路径
         registry.addInterceptor(authenticationInterceptor())
                 .addPathPatterns("/**")
-                .excludePathPatterns(hcrmsProperties.getLoginInterceptorExcludePath().toArray(new String[]{}));//白名单URL;
+                .excludePathPatterns(SHBMProperties.getLoginInterceptorExcludePath().toArray(new String[]{}));//白名单URL;
     }
 
     @Bean
