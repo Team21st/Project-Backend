@@ -1,8 +1,7 @@
 package com.CS353.cs353project.controller;
 
 import com.CS353.cs353project.anotation.PassToken;
-import com.CS353.cs353project.param.evt.AdminRegisterEvt;
-import com.CS353.cs353project.param.evt.UserRegisterEvt;
+import com.CS353.cs353project.param.evt.Management.AdminRegisterEvt;
 import com.CS353.cs353project.param.out.ServiceResp;
 import com.CS353.cs353project.service.AdminService;
 import io.swagger.annotations.Api;

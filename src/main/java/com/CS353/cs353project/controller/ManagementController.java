@@ -1,5 +1,6 @@
 package com.CS353.cs353project.controller;
 
+import com.CS353.cs353project.param.evt.Management.QueryAuditRecordsEvt;
 import com.CS353.cs353project.param.out.ServiceResp;
 import com.CS353.cs353project.service.ManagementService;
 import io.swagger.annotations.Api;
@@ -28,9 +29,9 @@ public class ManagementController {
     @ResponseBody
     @ApiOperation(value = "查询审核记录接口", notes = "")
     @RequestMapping(value = "/queryAuditRecords", method = RequestMethod.POST)
-    public ServiceResp queryAuditRecords(HttpServletRequest request, @RequestBody String type) throws Exception {
+    public ServiceResp queryAuditRecords(HttpServletRequest request, @RequestBody QueryAuditRecordsEvt evt) throws Exception {
         try {
-            return managementService.queryAuditRecords(request, type);
+            return managementService.queryAuditRecords(request, evt);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("query audit records function error");

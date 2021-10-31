@@ -2,15 +2,17 @@ package com.CS353.cs353project.service;
 
 import com.CS353.cs353project.bean.UserBean;
 import com.CS353.cs353project.dao.mapper.UserMapper;
-import com.CS353.cs353project.param.evt.*;
-import com.CS353.cs353project.param.model.AliyunOssResultModel;
-import com.CS353.cs353project.param.model.QueryUserPrivateInfoModel;
-import com.CS353.cs353project.param.model.UserLoginModel;
+import com.CS353.cs353project.param.evt.User.*;
+import com.CS353.cs353project.param.in.QueryEvt;
+import com.CS353.cs353project.param.model.Oss.AliyunOssResultModel;
+import com.CS353.cs353project.param.model.User.QueryMyCommodityModel;
+import com.CS353.cs353project.param.model.User.UserLoginModel;
 import com.CS353.cs353project.param.out.ServiceResp;
 import com.CS353.cs353project.utils.AliyunOSSUtil;
 import com.CS353.cs353project.utils.JwtUtils;
 import com.CS353.cs353project.utils.Md5Util;
 import com.CS353.cs353project.utils.VerifyCodeUtils;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -20,6 +22,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.UUID;
 
@@ -53,7 +57,7 @@ public class UserService {
         // 将用户数据保存至数据库
         UserBean addBean = new UserBean();
         addBean.setUserNo(StringUtils.replace(UUID.randomUUID().toString(), "-", ""));
-        addBean.setUserName("user_"+evt.getUserEmail());
+        addBean.setUserName(evt.getUserName());
         addBean.setUserEmail(evt.getUserEmail());
         addBean.setUserPassword(Md5Util.MD5(evt.getUserPassword()));
         addBean.setStatus("E");
@@ -68,6 +72,18 @@ public class UserService {
             return new ServiceResp().success("Registration success");
         }
         return new ServiceResp().error("Registration failed");
+    }
+
+    /**
+     * 判断用户名是否重名
+     */
+    public ServiceResp judgeUserName(String userName){
+        UserBean userBean = userMapper.judgeUserName(userName);
+        if (userBean!=null){
+            return new ServiceResp().error("The user name already exists");
+        }else {
+            return new ServiceResp().success("user name pass");
+        }
     }
 
 
@@ -176,9 +192,10 @@ public class UserService {
     public ServiceResp queryUserPrivateInfo(HttpServletRequest request){
         // 取出用户数据
         UserBean userInfo = userMapper.queryUserByNo((String) request.getAttribute("userNo"));
-        QueryUserPrivateInfoModel queryUserPrivateInfoModel=new QueryUserPrivateInfoModel();
-        BeanUtils.copyProperties(queryUserPrivateInfoModel,userInfo);
-        return new ServiceResp().success(queryUserPrivateInfoModel);
+        if(userInfo==null){
+            return new ServiceResp().error("can't find personal information");
+        }
+        return new ServiceResp().success(userInfo);
     }
 
     /**
@@ -187,11 +204,36 @@ public class UserService {
     public ServiceResp updateUserPrivateInfo(HttpServletRequest request, UpdateUserPrivateInfoEvt evt){
         // 取出用户数据
         UserBean userInfo = userMapper.queryUserByNo((String) request.getAttribute("userNo"));
+        if(userInfo==null){
+            return new ServiceResp().error("can't find personal information");
+        }
         BeanUtils.copyProperties(userInfo,evt);
         int result = userMapper.updateById(userInfo);
         if(result!=1){
             return new ServiceResp().error("update user private information failed");
         }
         return new ServiceResp().success("update user private information success");
+    }
+
+    /**
+     * 查询上架商品记录（包括所有审核状态）
+     */
+    public ServiceResp queryMyCommodity(HttpServletRequest request, QueryEvt evt){
+        Page<QueryMyCommodityModel> page=new Page<>(evt.getQueryPage(),evt.getQuerySize());
+        Page<QueryMyCommodityModel> modelPage=userMapper.queryMyCommodity((String) request.getAttribute("userEmail"),page);
+        if (modelPage==null){
+            return new ServiceResp().error("no records");
+        }
+
+        //拼接成价格格式
+        DecimalFormat df = new DecimalFormat();
+        df.applyPattern("#,##0.00");
+        for(QueryMyCommodityModel model: page.getRecords()){
+            BigDecimal decimalPrice = new BigDecimal(model.getBookPrice());
+            StringBuffer sb1 = new StringBuffer(df.format(decimalPrice));
+            sb1.insert(0, "$");
+            model.setTruePrice(new String(sb1));
+        }
+        return new ServiceResp().success(modelPage);
     }
 }

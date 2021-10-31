@@ -5,7 +5,7 @@ import cn.hutool.core.io.FastByteArrayOutputStream;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import com.CS353.cs353project.config.AliyunOssConfig;
-import com.CS353.cs353project.param.model.AliyunOssResultModel;
+import com.CS353.cs353project.param.model.Oss.AliyunOssResultModel;
 import com.aliyun.oss.ClientConfiguration;
 import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSSClient;

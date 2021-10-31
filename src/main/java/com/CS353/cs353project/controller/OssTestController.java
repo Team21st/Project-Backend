@@ -3,7 +3,7 @@ package com.CS353.cs353project.controller;
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.io.FileUtil;
 import com.CS353.cs353project.anotation.PassToken;
-import com.CS353.cs353project.param.model.AliyunOssResultModel;
+import com.CS353.cs353project.param.model.Oss.AliyunOssResultModel;
 import com.CS353.cs353project.utils.AliyunOSSUtil;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;

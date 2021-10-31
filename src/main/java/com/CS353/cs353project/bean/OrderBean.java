@@ -75,6 +75,4 @@ public class OrderBean {
     //更新人员
     @Column(name = "updateUser", length = 128)
     private String updateUser;
-
-
 }

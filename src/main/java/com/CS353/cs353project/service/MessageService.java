@@ -3,10 +3,8 @@ package com.CS353.cs353project.service;
 
 import com.CS353.cs353project.async.JmsProducer;
 import com.CS353.cs353project.exception.SendMailException;
-import com.CS353.cs353project.param.model.SendEmailModel;
-import com.CS353.cs353project.param.model.VerificationCodeModel;
+import com.CS353.cs353project.param.model.Email.SendEmailModel;
 import com.CS353.cs353project.param.out.ServiceResp;
-import com.CS353.cs353project.utils.Md5Util;
 import com.CS353.cs353project.utils.VerifyCodeUtils;
 import com.alibaba.fastjson.JSON;
 

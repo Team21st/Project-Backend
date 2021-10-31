@@ -1,11 +1,13 @@
 package com.CS353.cs353project.controller;
 
 import com.CS353.cs353project.anotation.PassToken;
-import com.CS353.cs353project.param.evt.*;
+import com.CS353.cs353project.param.evt.User.*;
+import com.CS353.cs353project.param.in.QueryEvt;
 import com.CS353.cs353project.param.out.ServiceResp;
 import com.CS353.cs353project.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotBlank;
 
 @RestController
 @RequestMapping("/user")
@@ -38,6 +41,22 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("User registration function error");
+            return new ServiceResp().error("System error");
+        }
+    }
+
+    /**
+     * 判断用户名是否重名
+     */
+    @PassToken
+    @ApiOperation("判断用户名是否重名接口")
+    @RequestMapping(value = "/judgeUserName", method = RequestMethod.POST)
+    public ServiceResp judgeUserName(@RequestBody @ApiParam("用户名") @NotBlank(message = "user name can not be blank") String userName) {
+        try {
+            return userService.judgeUserName(userName);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("judge User Name function error");
             return new ServiceResp().error("System error");
         }
     }
@@ -133,6 +152,22 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("update user privateInfo function error");
+            return new ServiceResp().error("System error");
+        }
+    }
+
+    /**
+     * 查询我的上架商品记录（包括所有审核状态）
+     */
+    @ResponseBody
+    @ApiOperation(value = "查询我的上架商品记录（包括所有审核状态）", notes = "")
+    @RequestMapping(value = "/queryMyCommodity", method = RequestMethod.POST)
+    public ServiceResp queryMyCommodity(HttpServletRequest request, @RequestBody QueryEvt evt)  {
+        try {
+            return userService.queryMyCommodity(request,evt);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("query my commodity function error");
             return new ServiceResp().error("System error");
         }
     }

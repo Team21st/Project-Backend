@@ -26,9 +26,9 @@ public class CommodityBean {
     @Column(name = "bookName", length = 128, nullable = false)
     private String bookName;
     //商家名称
-    @Column(name = "userEmail", length = 128, nullable = false)
-    private String userEmail;
-    //图书标签(0 文艺,1 科幻)
+    @Column(name = "userName", length = 128, nullable = false)
+    private String userName;
+    //图书标签(0 文学,1 随笔,2 历史,3 科幻,4 奇幻,5 悬疑,6 推理,7 哲学,8 工具,9 专业知识)
     @Column(name = "bookTag", nullable = false)
     private String  bookTag;
     //图书描述
@@ -84,5 +84,4 @@ public class CommodityBean {
     //图书新旧程度(ex:九五新:95)
     @Column(name = "newOldDegree")
     private Integer newOldDegree;
-
 }
