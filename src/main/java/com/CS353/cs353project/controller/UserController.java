@@ -171,4 +171,20 @@ public class UserController {
             return new ServiceResp().error("System error");
         }
     }
+
+    /**
+     * 用户申请认证
+     */
+    @ResponseBody
+    @ApiOperation(value = "用户申请认证",notes = "")
+    @RequestMapping(value = "/applyForCertification",method = RequestMethod.POST)
+    public ServiceResp applyForCertification (HttpServletRequest request){
+        try {
+            return userService.applyForCertification(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("apply For Certification function error");
+            return new ServiceResp().error("System error");
+        }
+    }
 }

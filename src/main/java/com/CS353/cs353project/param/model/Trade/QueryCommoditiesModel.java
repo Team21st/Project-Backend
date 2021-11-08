@@ -12,6 +12,8 @@ public class QueryCommoditiesModel {
     private String bookName;
     //商家名称
     private String userName;
+    //商家用户编码
+    private String sellerNo;
     //图书标签(0 文学,1 随笔,2 历史,3 科幻,4 奇幻,5 悬疑,6 推理,7 哲学,8 工具,9 专业知识)
     private String  bookTag;
     //图书描述

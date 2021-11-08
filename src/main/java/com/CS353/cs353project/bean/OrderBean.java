@@ -22,12 +22,18 @@ public class OrderBean {
     @TableId("orderNo")
     @Column(name = "orderNo", length = 32, nullable = false)
     private String orderNo;
-    //商品编码
-    @Column(name = "commNo", length = 32, nullable = false)
-    private String commNo;
+    //在架图书编码
+    @Column(name = "bookNo", length = 32, nullable = false)
+    private String bookNo;
+    //在架图书名称
+    @Column(name = "bookName", length = 32, nullable = false)
+    private String bookName;
     //卖家编码
     @Column(name = "sellerNo", length = 32, nullable = false)
     private String sellerNo;
+    //买家编码
+    @Column(name = "buyerNo", length = 32, nullable = false)
+    private String buyerNo;
     //收货地址
     @Column(name = "address", length = 256, nullable = false)
     private String address;

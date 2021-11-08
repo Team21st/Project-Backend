@@ -6,6 +6,7 @@ import com.CS353.cs353project.param.model.User.QueryMyCommodityModel;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
+
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectProvider;
@@ -39,6 +40,6 @@ public interface UserMapper extends BaseMapper<UserBean> {
      * 查询上架商品信息（包括所有审核状态）
      */
     @SelectProvider(type= UserProvider.class,method = "queryMyCommodity")
-    Page<QueryMyCommodityModel> queryMyCommodity(String createUser, Page<QueryMyCommodityModel> page);
+    Page<QueryMyCommodityModel> queryMyCommodity(@Param("createUser") String createUser, Page<QueryMyCommodityModel> page);
 
 }

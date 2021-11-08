@@ -62,7 +62,7 @@ public class UserService {
         addBean.setUserPassword(Md5Util.MD5(evt.getUserPassword()));
         addBean.setStatus("E");
         addBean.setUserRoot(0);
-        addBean.setAuthentication(2);
+        addBean.setAuthentication(0);
         addBean.setIsBan(0);
         addBean.setUnquaComm(0);
         addBean.setCreateUser(evt.getUserEmail());
@@ -77,11 +77,11 @@ public class UserService {
     /**
      * 判断用户名是否重名
      */
-    public ServiceResp judgeUserName(String userName){
+    public ServiceResp judgeUserName(String userName) {
         UserBean userBean = userMapper.judgeUserName(userName);
-        if (userBean!=null){
+        if (userBean != null) {
             return new ServiceResp().error("The user name already exists");
-        }else {
+        } else {
             return new ServiceResp().success("user name pass");
         }
     }
@@ -167,9 +167,9 @@ public class UserService {
     public ServiceResp uploadHeadPortrait(HttpServletRequest request, MultipartFile file) {
         String userEmail = (String) request.getAttribute("userEmail");
         //userEmail = "1446795616@qq.com";//@passToken 情况下使用
-        String ossUrl = "SHBM/HeadPortrait/"+userEmail+"/"+userEmail+"_HeadPortrait";
-        AliyunOssResultModel resultModel= AliyunOSSUtil.uploadFile(file,ossUrl);
-        if(resultModel.isSuccess()){
+        String ossUrl = "SHBM/HeadPortrait/" + userEmail + "/" + userEmail + "_HeadPortrait";
+        AliyunOssResultModel resultModel = AliyunOSSUtil.uploadFile(file, ossUrl);
+        if (resultModel.isSuccess()) {
             //将用户头像写入数据库
             // 取出用户数据
             UserBean userInfo = userMapper.queryUserByNo((String) request.getAttribute("userNo"));
@@ -177,39 +177,39 @@ public class UserService {
             String url = resultModel.getUrl();
             userInfo.setProfileUrl(url);
             int info = userMapper.updateById(userInfo);
-            if(info!=1){
+            if (info != 1) {
                 return new ServiceResp().error("update head portrait failed");
             }
             return new ServiceResp().success(resultModel);
-        }else {
+        } else {
             return new ServiceResp().error(resultModel.getMsg());
         }
     }
 
     /**
-     *获取用户个人信息
+     * 获取用户个人信息
      */
-    public ServiceResp queryUserPrivateInfo(HttpServletRequest request){
+    public ServiceResp queryUserPrivateInfo(HttpServletRequest request) {
         // 取出用户数据
         UserBean userInfo = userMapper.queryUserByNo((String) request.getAttribute("userNo"));
-        if(userInfo==null){
+        if (userInfo == null) {
             return new ServiceResp().error("can't find personal information");
         }
         return new ServiceResp().success(userInfo);
     }
 
     /**
-     *修改用户个人信息（除了头像）
+     * 修改用户个人信息（除了头像）
      */
-    public ServiceResp updateUserPrivateInfo(HttpServletRequest request, UpdateUserPrivateInfoEvt evt){
+    public ServiceResp updateUserPrivateInfo(HttpServletRequest request, UpdateUserPrivateInfoEvt evt) {
         // 取出用户数据
         UserBean userInfo = userMapper.queryUserByNo((String) request.getAttribute("userNo"));
-        if(userInfo==null){
+        if (userInfo == null) {
             return new ServiceResp().error("can't find personal information");
         }
-        BeanUtils.copyProperties(userInfo,evt);
+        BeanUtils.copyProperties(userInfo, evt);
         int result = userMapper.updateById(userInfo);
-        if(result!=1){
+        if (result != 1) {
             return new ServiceResp().error("update user private information failed");
         }
         return new ServiceResp().success("update user private information success");
@@ -218,17 +218,17 @@ public class UserService {
     /**
      * 查询上架商品记录（包括所有审核状态）
      */
-    public ServiceResp queryMyCommodity(HttpServletRequest request, QueryEvt evt){
-        Page<QueryMyCommodityModel> page=new Page<>(evt.getQueryPage(),evt.getQuerySize());
-        Page<QueryMyCommodityModel> modelPage=userMapper.queryMyCommodity((String) request.getAttribute("userEmail"),page);
-        if (modelPage==null){
+    public ServiceResp queryMyCommodity(HttpServletRequest request, QueryEvt evt) {
+        Page<QueryMyCommodityModel> page = new Page<>(evt.getQueryPage(), evt.getQuerySize());
+        Page<QueryMyCommodityModel> modelPage = userMapper.queryMyCommodity((String) request.getAttribute("userEmail"), page);
+        if (modelPage == null) {
             return new ServiceResp().error("no records");
         }
 
         //拼接成价格格式
         DecimalFormat df = new DecimalFormat();
         df.applyPattern("#,##0.00");
-        for(QueryMyCommodityModel model: page.getRecords()){
+        for (QueryMyCommodityModel model : page.getRecords()) {
             BigDecimal decimalPrice = new BigDecimal(model.getBookPrice());
             StringBuffer sb1 = new StringBuffer(df.format(decimalPrice));
             sb1.insert(0, "$");
@@ -236,4 +236,29 @@ public class UserService {
         }
         return new ServiceResp().success(modelPage);
     }
+
+    /**
+     * 用户申请认证
+     */
+    public ServiceResp applyForCertification(HttpServletRequest request) {
+        String userNo = (String) request.getAttribute("userNo");
+        UserBean userInfo = userMapper.queryUserByNo(userNo);
+        if(userInfo==null){
+            return new ServiceResp().error("user doesn't exist");
+        }
+        if(userInfo.getAuthentication()==1){
+            return new ServiceResp().error("user is under authentication");
+        }
+        if(userInfo.getAuthentication()==2 || userInfo.getAuthentication()==3 ){
+            return new ServiceResp().error("operation had already been judge");
+        }
+        userInfo.setAuthentication(1);
+        Integer result=userMapper.updateById(userInfo);
+        if(result==1){
+            return new ServiceResp().success("Apply For Certification successfully");
+        }
+        return new ServiceResp().error("Apply For Certification fail");
+    }
+
+
 }

@@ -32,7 +32,6 @@ public class BookOnShelveEvt {
     @ApiModelProperty(value = "图书库存", required = true)
     private Integer bookStock;
     //自定义标签
-    @NotBlank(message = "custom tags of book can not be empty")
     @ApiModelProperty(value = "自定义标签", required = false)
     private String customTags;
 

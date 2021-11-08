@@ -1,13 +1,14 @@
 package com.CS353.cs353project.service;
 
 import com.CS353.cs353project.bean.CommodityBean;
-import com.CS353.cs353project.dao.mapper.TradeMapper;
-import com.CS353.cs353project.param.evt.Trade.BookOnShelveEvt;
-import com.CS353.cs353project.param.evt.Trade.EditBookOnShelveEvt;
-import com.CS353.cs353project.param.evt.Trade.QueryCommoditiesEvt;
-import com.CS353.cs353project.param.model.Management.QueryAuditRecordsModel;
+import com.CS353.cs353project.bean.OrderBean;
+import com.CS353.cs353project.dao.mapper.Trade.CommodityMapper;
+import com.CS353.cs353project.dao.mapper.Trade.OrderMapper;
+import com.CS353.cs353project.param.evt.Message.SendOffShelveReasonEvt;
+import com.CS353.cs353project.param.evt.Trade.*;
 import com.CS353.cs353project.param.model.Oss.AliyunOssResultModel;
 import com.CS353.cs353project.param.model.Trade.QueryCommoditiesModel;
+import com.CS353.cs353project.param.model.Trade.QueryOrderListModel;
 import com.CS353.cs353project.param.out.ServiceResp;
 import com.CS353.cs353project.utils.AliyunOSSUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -29,7 +30,11 @@ public class TradeService {
     Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private TradeMapper tradeMapper;
+    private CommodityMapper commodityMapper;
+    @Autowired
+    private MessageService messageService;
+    @Autowired
+    private OrderMapper orderMapper;
 
     /**
      * 上架图书接口(提交审核)
@@ -37,7 +42,8 @@ public class TradeService {
     public ServiceResp bookOnShelve(HttpServletRequest request, MultipartFile file, BookOnShelveEvt evt) {
         //用户邮箱(唯一账户识别标准,而不是用户名)
         String userEmail = (String) request.getAttribute("userEmail");
-        String userName=(String) request.getAttribute("userName");
+        String userName = (String) request.getAttribute("userName");
+        String sellerNo = (String) request.getAttribute("userNo");
 
         CommodityBean commodityBean = new CommodityBean();
         BeanUtils.copyProperties(evt, commodityBean);
@@ -45,6 +51,8 @@ public class TradeService {
         commodityBean.setUserName(userName);
         commodityBean.setRecommend(0);
         commodityBean.setBookStock(evt.getBookStock());
+        commodityBean.setBookSale(0);
+        commodityBean.setSellerNo(sellerNo);
         if (evt.getCustomTags() != null) {
             commodityBean.setCustomTags(evt.getCustomTags());
         }
@@ -61,7 +69,7 @@ public class TradeService {
         String bookPicUrl = resultModel.getUrl();
         commodityBean.setBookPicUrl(bookPicUrl);
         //存入数据库
-        int result = tradeMapper.insert(commodityBean);
+        int result = commodityMapper.insert(commodityBean);
         if (result == 1) {
             logger.info(userEmail + " make books on shelve");
             return new ServiceResp().success(" make books on shelve success");
@@ -73,13 +81,13 @@ public class TradeService {
      * 修改商品信息
      */
     public ServiceResp editBookOnShelve(EditBookOnShelveEvt evt) {
-        CommodityBean recordInfo = tradeMapper.queryOneRecord(evt.getBookNo());
+        CommodityBean recordInfo = commodityMapper.queryOneRecord(evt.getBookNo());
         if (recordInfo == null) {
             return new ServiceResp().error("can't find the record information");
         }
-        BeanUtils.copyProperties(recordInfo,evt);
-        int result= tradeMapper.updateById(recordInfo);
-        if(result!=1){
+        BeanUtils.copyProperties(recordInfo, evt);
+        int result = commodityMapper.updateById(recordInfo);
+        if (result != 1) {
             return new ServiceResp().error("edit on shelve record failed");
         }
         return new ServiceResp().success("edit on shelve record failed success");
@@ -88,14 +96,21 @@ public class TradeService {
     /**
      * 下架商品
      */
-    public ServiceResp deleteBookOnShelve(String bookNo){
-        CommodityBean recordInfo = tradeMapper.queryOneRecord(bookNo);
+    public ServiceResp bookOffShelve(BookOffShelveEvt evt) {
+        CommodityBean recordInfo = commodityMapper.queryOneRecord(evt.getBookNo());
         if (recordInfo == null) {
             return new ServiceResp().error("can't find the record information");
         }
         recordInfo.setStatus("D");
-        int result= tradeMapper.updateById(recordInfo);
-        if(result!=1){
+        if (evt.getUserRole() == 1) {//若是由管理员下架的，发邮件说明原因
+            SendOffShelveReasonEvt evt1 = new SendOffShelveReasonEvt();
+            evt1.setBookName(recordInfo.getBookName());
+            evt1.setReason(evt.getReason());
+            evt1.setEmail(recordInfo.getCreateUser());
+            messageService.sendOffShelveReason(evt1);
+        }
+        int result = commodityMapper.updateById(recordInfo);
+        if (result != 1) {
             return new ServiceResp().error("delete on shelve record failed");
         }
         return new ServiceResp().success("delete on shelve record failed success");
@@ -104,17 +119,17 @@ public class TradeService {
     /**
      * 查询商品
      */
-    public ServiceResp queryCommodities(QueryCommoditiesEvt evt){
-        Page<QueryCommoditiesModel> page =new Page<>(evt.getQueryPage(),evt.getQuerySize());
-        Page<QueryCommoditiesModel> modelPage= tradeMapper.queryCommodities(evt,page);
-        if (modelPage==null){
+    public ServiceResp queryCommodities(QueryCommoditiesEvt evt) {
+        Page<QueryCommoditiesModel> page = new Page<>(evt.getQueryPage(), evt.getQuerySize());
+        Page<QueryCommoditiesModel> modelPage = commodityMapper.queryCommodities(evt, page);
+        if (modelPage.getRecords() == null) {
             return new ServiceResp().error("can not find relative books");
         }
 
         //拼接成价格格式
         DecimalFormat df = new DecimalFormat();
         df.applyPattern("#,##0.00");
-        for(QueryCommoditiesModel model: page.getRecords()){
+        for (QueryCommoditiesModel model : page.getRecords()) {
             BigDecimal decimalPrice = new BigDecimal(model.getBookPrice());
             StringBuffer sb1 = new StringBuffer(df.format(decimalPrice));
             sb1.insert(0, "$");
@@ -123,5 +138,81 @@ public class TradeService {
         return new ServiceResp().success(modelPage);
     }
 
+    /**
+     * 下单商品
+     */
+    public ServiceResp placeOrder(HttpServletRequest request, PlaceOrderEvt evt) {
+        String buyerNo =(String)request.getAttribute("userNo");
+        //查询商品状况
+        CommodityBean commodityInfo = commodityMapper.queryOneRecord(evt.getBookNo());
+        if (commodityInfo.getBookStock() == 0) {
+            return new ServiceResp().error("this book has been out of the shelve just now");
+        }
+        int currentStock = commodityInfo.getBookStock() - evt.getNum();
+        int currentSell = commodityInfo.getBookSale()+ evt.getNum();
+        if (currentStock < 0) {
+            return new ServiceResp().error("the goods you purchased: " + commodityInfo.getBookName() + "  has exceeded the actual quantity");
+        }
+        commodityInfo.setBookStock(currentStock);
+        commodityInfo.setBookSale(currentSell);
+        OrderBean orderBean = new OrderBean();
+        BeanUtils.copyProperties(evt, orderBean);
+        orderBean.setBuyerNo(buyerNo);
+        orderBean.setStatus("E");
+        orderBean.setBookName(commodityInfo.getBookName());
+        orderBean.setOrderNo(StringUtils.replace(UUID.randomUUID().toString(), "-", ""));
+        orderBean.setOrderStatus(0);
+        orderBean.setCreateUser((String) request.getAttribute("userEmail"));
+        int result2 = orderMapper.insert(orderBean);
+        if (result2 != 1) {
+            return new ServiceResp().error("place order fail");
+        }
+        int result1 = commodityMapper.updateById(commodityInfo);
+        if (result1 != 1) {
+            return new ServiceResp().error("place order fail, when changing inventory quantity");
+        }
+        return new ServiceResp().success(orderBean);
+    }
 
+    /**
+     * 商家查看订单
+     */
+    public ServiceResp sellerQueryOrderList(SellerQueryOrderListEvt evt) {
+        Page<QueryOrderListModel> page = new Page<>(evt.getQueryPage(), evt.getQuerySize());
+        Page<QueryOrderListModel> modelPage = orderMapper.sellerQueryOrderList(evt, page);
+        if (modelPage.getRecords() == null) {
+            return new ServiceResp().error("can not find relative order list");
+        }
+        //拼接成价格格式
+        DecimalFormat df = new DecimalFormat();
+        df.applyPattern("#,##0.00");
+        for (QueryOrderListModel model : page.getRecords()) {
+            BigDecimal decimalPrice = new BigDecimal(model.getPrice());
+            StringBuffer sb1 = new StringBuffer(df.format(decimalPrice));
+            sb1.insert(0, "$");
+            model.setTurePrice(new String(sb1));
+        }
+        return new ServiceResp().success(modelPage);
+    }
+
+    /**
+     * 买家查看订单
+     */
+    public ServiceResp buyerQueryOrderList(BuyerQueryOrderListEvt evt) {
+        Page<QueryOrderListModel> page = new Page<>(evt.getQueryPage(), evt.getQuerySize());
+        Page<QueryOrderListModel> modelPage = orderMapper.buyerQueryOrderList(evt, page);
+        if (modelPage.getRecords() == null) {
+            return new ServiceResp().error("can not find relative order list");
+        }
+        //拼接成价格格式
+        DecimalFormat df = new DecimalFormat();
+        df.applyPattern("#,##0.00");
+        for (QueryOrderListModel model : page.getRecords()) {
+            BigDecimal decimalPrice = new BigDecimal(model.getPrice());
+            StringBuffer sb1 = new StringBuffer(df.format(decimalPrice));
+            sb1.insert(0, "$");
+            model.setTurePrice(new String(sb1));
+        }
+        return new ServiceResp().success(modelPage);
+    }
 }

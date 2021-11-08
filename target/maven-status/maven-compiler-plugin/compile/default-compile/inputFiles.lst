@@ -1,7 +1,10 @@
+D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Management\AuthorizeUserEvt.java
+D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\dao\provider\ManagementProvider.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\model\User\QueryMyCommodityModel.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\dao\mapper\TradeMapper.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\model\User\UserLoginModel.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\controller\AdminController.java
+D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\dao\mapper\ManagementMapper.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\utils\VerifyCodeUtils.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\dao\provider\TradeProvider.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\async\JmsProducer.java
@@ -14,11 +17,13 @@ D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\C
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\controller\ManagementController.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Trade\EditBookOnShelveEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Trade\BookOnShelveEvt.java
+D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Management\QueryAllUserEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\User\ChangeUserPasswordEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\controller\UserController.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Trade\QueryCommoditiesEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\utils\Md5Util.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\Cs353projectApplication.java
+D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Message\SendOffShelveReasonEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\exception\TokenUnavailableException.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\dao\mapper\UserMapper.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\dao\provider\UserProvider.java
@@ -51,6 +56,8 @@ D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\C
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\utils\StringUtil.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\model\Verify\VerificationCodeModel.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\bean\CommentReportBean.java
+D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Trade\BookOffShelveEvt.java
+D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Management\BanUserEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\model\Oss\AliyunOssResultModel.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\bean\CommPicBean.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\service\TradeService.java

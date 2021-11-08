@@ -4,6 +4,8 @@ import lombok.Data;
 
 @Data
 public class QueryAuditRecordsModel {
+    //书本编码
+    private String bookNo;
     //书名
     public String bookName;
     //书本图片

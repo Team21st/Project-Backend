@@ -10,6 +10,6 @@ public class QueryCommoditiesEvt extends QueryEvt {
     @ApiModelProperty(value = "书名",required = false)
     private String bookName;
     //排序方式
-    @ApiModelProperty(value = "排序方式,1(按时间最新排序)，2（按价格低到高排序），3（按价格高到低排序），4（按图书销量排序）",required = false)
-    private Integer sortType;
+    @ApiModelProperty(value = "排序方式,1(按时间最新排序)，2（按时间最久排序），3（按价格低到高排序），4（按价格高到低排序），5（按图书销量最多排序），6（按图书销量最少排序）",required = false)
+    private Integer[] sortType;
 }

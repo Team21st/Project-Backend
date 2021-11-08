@@ -1,12 +1,13 @@
 package com.CS353.cs353project.dao.provider;
 
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.jdbc.SQL;
 
 public class UserProvider {
     /**
      * 查询上架商品信息（包括所有审核状态）
      */
-    public String queryMyCommodity(String createUser){
+    public String queryMyCommodity(@Param("createUser") String createUser){
         SQL sql=new SQL(){
             {
                 SELECT("bookNo,bookName,bookDesc,bookPrice,newOldDegree,bookStock,bookPicUrl,\n" +
@@ -27,10 +28,9 @@ public class UserProvider {
                         "when '0' then '审核中'\n" +
                         "else '审核不通过' end");
                 FROM("t_commodity");
-                WHERE("status ='E' and createUser=#{createUser}");
+                WHERE("status ='E' and createUser= #{createUser}");
             }
         };
         return sql.toString();
     }
-
 }

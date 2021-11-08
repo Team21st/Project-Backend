@@ -1,4 +1,4 @@
-package com.CS353.cs353project.dao.mapper;
+package com.CS353.cs353project.dao.mapper.Trade;
 
 import com.CS353.cs353project.bean.CommodityBean;
 import com.CS353.cs353project.dao.provider.TradeProvider;
@@ -8,6 +8,7 @@ import com.CS353.cs353project.param.model.Management.QueryAuditRecordsModel;
 import com.CS353.cs353project.param.model.Trade.QueryCommoditiesModel;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Repository;
 
 @Mapper
 @Repository
-public interface TradeMapper extends BaseMapper<CommodityBean> {
+public interface CommodityMapper extends BaseMapper<CommodityBean> {
 
     /**
      *查询审核记录
@@ -35,4 +36,6 @@ public interface TradeMapper extends BaseMapper<CommodityBean> {
      */
     @SelectProvider(type= TradeProvider.class,method = "queryCommodities")
     Page<QueryCommoditiesModel> queryCommodities(QueryCommoditiesEvt evt, Page<QueryCommoditiesModel> page);
+
+
 }

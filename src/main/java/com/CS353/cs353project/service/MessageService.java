@@ -3,6 +3,7 @@ package com.CS353.cs353project.service;
 
 import com.CS353.cs353project.async.JmsProducer;
 import com.CS353.cs353project.exception.SendMailException;
+import com.CS353.cs353project.param.evt.Message.SendOffShelveReasonEvt;
 import com.CS353.cs353project.param.model.Email.SendEmailModel;
 import com.CS353.cs353project.param.out.ServiceResp;
 import com.CS353.cs353project.utils.VerifyCodeUtils;
@@ -56,6 +57,21 @@ public class MessageService {
             logger.info(String.format("Registration email has been sent to %s", email));
             return new ServiceResp().success("send verify code successfully, expire time 2 minutes");
         }
+    }
+
+
+    /**
+     * 发送下架原因
+     */
+    public void sendOffShelveReason(SendOffShelveReasonEvt evt) {
+        //生成对应邮箱的验证码
+        SendEmailModel model = new SendEmailModel();
+        model.setEmail(evt.getEmail());
+        model.setMsg("Dear user, your on shelve book: \"" + evt.getBookName() + "\" had been off shelve by shopping administrator. the reason as below:\n" + evt.getReason());
+        //发送邮件
+        String json = JSON.toJSONString(model);
+        jmsProducer.sendMsg("HSBM.mail.send", json);//????destinationNmae>>???
+        logger.info(String.format("Off Shelve Reason email has been sent to %s", evt.getEmail()));
     }
 
     /**
