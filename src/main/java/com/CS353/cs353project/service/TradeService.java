@@ -58,6 +58,7 @@ public class TradeService {
         }
         commodityBean.setStatus("E");
         commodityBean.setCreateUser(userEmail);
+        commodityBean.setUpdateUser(userEmail);
         commodityBean.setAuditStatus("0");
 
         //上传图书实物图
@@ -80,12 +81,13 @@ public class TradeService {
     /**
      * 修改商品信息
      */
-    public ServiceResp editBookOnShelve(EditBookOnShelveEvt evt) {
+    public ServiceResp editBookOnShelve(HttpServletRequest request,EditBookOnShelveEvt evt) {
         CommodityBean recordInfo = commodityMapper.queryOneRecord(evt.getBookNo());
         if (recordInfo == null) {
             return new ServiceResp().error("can't find the record information");
         }
         BeanUtils.copyProperties(recordInfo, evt);
+        recordInfo.setUpdateUser((String) request.getAttribute("userEmail"));
         int result = commodityMapper.updateById(recordInfo);
         if (result != 1) {
             return new ServiceResp().error("edit on shelve record failed");
@@ -96,12 +98,13 @@ public class TradeService {
     /**
      * 下架商品
      */
-    public ServiceResp bookOffShelve(BookOffShelveEvt evt) {
+    public ServiceResp bookOffShelve(HttpServletRequest request,BookOffShelveEvt evt) {
         CommodityBean recordInfo = commodityMapper.queryOneRecord(evt.getBookNo());
         if (recordInfo == null) {
             return new ServiceResp().error("can't find the record information");
         }
         recordInfo.setStatus("D");
+        recordInfo.setUpdateUser((String) request.getAttribute("userEmail"));
         if (evt.getUserRole() == 1) {//若是由管理员下架的，发邮件说明原因
             SendOffShelveReasonEvt evt1 = new SendOffShelveReasonEvt();
             evt1.setBookName(recordInfo.getBookName());
@@ -163,6 +166,7 @@ public class TradeService {
         orderBean.setOrderNo(StringUtils.replace(UUID.randomUUID().toString(), "-", ""));
         orderBean.setOrderStatus(0);
         orderBean.setCreateUser((String) request.getAttribute("userEmail"));
+        orderBean.setUpdateUser((String) request.getAttribute("userEmail"));
         int result2 = orderMapper.insert(orderBean);
         if (result2 != 1) {
             return new ServiceResp().error("place order fail");

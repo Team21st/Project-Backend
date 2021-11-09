@@ -61,9 +61,9 @@ public class ManagementController {
     @ResponseBody
     @ApiOperation(value ="设置用户封禁状态接口", notes="")
     @RequestMapping(value = "/banUser", method = RequestMethod.POST)
-    public ServiceResp banUser(@RequestBody BanUserEvt evt){
+    public ServiceResp banUser(HttpServletRequest request,@RequestBody BanUserEvt evt){
         try {
-            return managementService.banUser(evt);
+            return managementService.banUser(request,evt);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("ban  user function error");
@@ -77,9 +77,9 @@ public class ManagementController {
     @ResponseBody
     @ApiOperation(value ="设置用户认证状态接口", notes="")
     @RequestMapping(value = "/authorizeUser", method = RequestMethod.POST)
-    public ServiceResp authorizeUser(@RequestBody AuthorizeUserEvt evt){
+    public ServiceResp authorizeUser(HttpServletRequest request,@RequestBody AuthorizeUserEvt evt){
         try {
-            return managementService.authorizeUser(evt);
+            return managementService.authorizeUser(request,evt);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("authorize  user function error");

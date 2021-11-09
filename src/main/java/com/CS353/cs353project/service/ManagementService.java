@@ -64,19 +64,21 @@ public class ManagementService {
     }
 
     /**
-     * 封禁\解封禁用户
+     * 设置用户封禁状态接口
      */
-    public ServiceResp banUser(BanUserEvt evt) {
+    public ServiceResp banUser(HttpServletRequest request,BanUserEvt evt) {
         UserBean userInfo = userMapper.queryUserByNo(evt.getUserNo());
         if (userInfo == null) {
             return new ServiceResp().error("User doesn't exist");
         }
+        userInfo.setUpdateUser((String) request.getAttribute("userEmail"));
         int result;
         if (evt.getIsBan() == 1) {
-            result = managementMapper.banUser(evt.getUserNo());
+            userInfo.setIsBan(1);
         } else {
-            result = managementMapper.disBanUser(evt.getUserNo());
+            userInfo.setIsBan(0);
         }
+        result = userMapper.updateById(userInfo);
         if (result != 1){
             return new ServiceResp().error("Failed to modify the user ban status");
         }
@@ -85,9 +87,9 @@ public class ManagementService {
 
 
     /**
-     * 封禁\解封禁用户
+     * 设置用户认证状态接口
      */
-    public ServiceResp authorizeUser(AuthorizeUserEvt evt) {
+    public ServiceResp authorizeUser(HttpServletRequest request,AuthorizeUserEvt evt) {
         UserBean userInfo = userMapper.queryUserByNo(evt.getUserNo());
         if (userInfo == null) {
             return new ServiceResp().error("User doesn't exist");
@@ -95,14 +97,14 @@ public class ManagementService {
         if(userInfo.getAuthentication()==0){
             return new ServiceResp().error("this user haven't ask for authorize yet");
         }
-        if(userInfo.getAuthentication()!=1){
-            return new ServiceResp().error("this user's authorization status had been changed");
-        }
+        userInfo.setUpdateUser((String) request.getAttribute("userEmail"));
         int result=0;
         if (evt.getAuthentication() == 2) {//通过
-            result = managementMapper.authorizeUser(evt.getUserNo());
-        } else if(evt.getAuthentication() ==3){
-            result = managementMapper.disAuthorizeUser(evt.getUserNo());
+            userInfo.setAuthentication(2);
+            result = userMapper.updateById(userInfo);
+        } else if(evt.getAuthentication() ==3){//不通过
+            userInfo.setAuthentication(3);
+            result = userMapper.updateById(userInfo);
         }
         if (result != 1){
             return new ServiceResp().error("Failed to modify the user ban status");

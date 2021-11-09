@@ -47,9 +47,9 @@ public class TradeController {
     @ResponseBody
     @ApiOperation(value = "修改商品信息接口", notes = "")
     @RequestMapping(value = "/editBookOnShelve", method = RequestMethod.POST)
-    public ServiceResp editBookOnShelve(@RequestBody EditBookOnShelveEvt evt){
+    public ServiceResp editBookOnShelve(HttpServletRequest request,@RequestBody EditBookOnShelveEvt evt){
         try {
-            return tradeService.editBookOnShelve(evt);
+            return tradeService.editBookOnShelve(request,evt);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("edit book 0n shelve function error");
@@ -64,9 +64,9 @@ public class TradeController {
     @ResponseBody
     @ApiOperation(value = "下架商品接口", notes = "")
     @RequestMapping(value = "/bookOffShelve", method = RequestMethod.POST)
-    public ServiceResp bookOffShelve(@RequestBody BookOffShelveEvt evt){
+    public ServiceResp bookOffShelve(HttpServletRequest request,@RequestBody BookOffShelveEvt evt){
         try {
-            return tradeService.bookOffShelve(evt);
+            return tradeService.bookOffShelve(request,evt);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("delete book 0n shelve function error");

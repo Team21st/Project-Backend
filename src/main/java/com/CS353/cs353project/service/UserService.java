@@ -66,6 +66,7 @@ public class UserService {
         addBean.setIsBan(0);
         addBean.setUnquaComm(0);
         addBean.setCreateUser(evt.getUserEmail());
+        addBean.setUpdateUser(evt.getUserEmail());
         int info = userMapper.insert(addBean);
         if (info == 1) {
             logger.info(String.format("User %s registration success", evt.getUserEmail()));
@@ -95,6 +96,10 @@ public class UserService {
         UserBean userBean = userMapper.queryUserByEmail(evt.getUserEmail());
         if (userBean == null) {
             return new ServiceResp().error("User doesn't exist");
+        }
+        //用户已被封禁
+        if(userBean.getIsBan()==1){
+            return new ServiceResp().error("user had been blocked");
         }
         //判断密码是否正确
         evt.setUserPassword(Md5Util.MD5(evt.getUserPassword()));
@@ -130,6 +135,7 @@ public class UserService {
         }
         //更新密码
         userInfo.setUserPassword(Md5Util.MD5(evt.getNewPassword()));
+        userInfo.setUpdateUser((String) request.getAttribute("userEmail"));
         int info = userMapper.updateById(userInfo);
         if (info == 1) {
             return new ServiceResp().success("Password modify success");
@@ -154,6 +160,7 @@ public class UserService {
         }
         //更新密码
         userInfo.setUserPassword(Md5Util.MD5(evt.getNewPassword()));
+        userInfo.setUpdateUser(evt.getUserEmail());
         int info = userMapper.updateById(userInfo);
         if (info == 1) {
             return new ServiceResp().success("Password modify success");
@@ -176,6 +183,7 @@ public class UserService {
             //更新头像
             String url = resultModel.getUrl();
             userInfo.setProfileUrl(url);
+            userInfo.setUpdateUser(userEmail);
             int info = userMapper.updateById(userInfo);
             if (info != 1) {
                 return new ServiceResp().error("update head portrait failed");
@@ -208,6 +216,7 @@ public class UserService {
             return new ServiceResp().error("can't find personal information");
         }
         BeanUtils.copyProperties(userInfo, evt);
+        userInfo.setUpdateUser((String) request.getAttribute("userEmail"));
         int result = userMapper.updateById(userInfo);
         if (result != 1) {
             return new ServiceResp().error("update user private information failed");
@@ -253,6 +262,7 @@ public class UserService {
             return new ServiceResp().error("operation had already been judge");
         }
         userInfo.setAuthentication(1);
+        userInfo.setUpdateUser((String) request.getAttribute("userEmail"));
         Integer result=userMapper.updateById(userInfo);
         if(result==1){
             return new ServiceResp().success("Apply For Certification successfully");
