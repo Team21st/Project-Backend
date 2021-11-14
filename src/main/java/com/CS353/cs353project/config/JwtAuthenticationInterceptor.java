@@ -54,7 +54,7 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
         else {
             // 执行认证
             if (token == null) {
-                httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                httpServletResponse.setStatus(HttpServletResponse.SC_OK);
                 PrintWriter writer= httpServletResponse.getWriter();
                 writer.write("{\"respCode\":\"-1\",\"respMsg\":\"Authentication failed\"}");
                 writer.flush();
@@ -68,7 +68,7 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
                 check = JwtUtils.getAudience(token);
             } catch (TokenUnavailableException e) {
                 logger.error(e.getMessage());
-                httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                httpServletResponse.setStatus(HttpServletResponse.SC_OK);
                 PrintWriter writer= httpServletResponse.getWriter();
                 writer.write("{\"respCode\":\"-1\",\"respMsg\":\"Authentication failed\"}");
                 writer.flush();
@@ -88,7 +88,7 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
                 JwtUtils.verifyToken(token, check);
             } catch (TokenUnavailableException e) {
                 logger.error(e.getMessage());
-                httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                httpServletResponse.setStatus(HttpServletResponse.SC_OK);
                 return false;
             }
 

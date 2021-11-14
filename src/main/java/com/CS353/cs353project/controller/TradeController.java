@@ -1,6 +1,9 @@
 package com.CS353.cs353project.controller;
 
 import com.CS353.cs353project.param.evt.Trade.*;
+import com.CS353.cs353project.param.evt.Trade.ShoppingCart.AddShoppingCartEvt;
+import com.CS353.cs353project.param.evt.Trade.ShoppingCart.EditShoppingCartEvt;
+import com.CS353.cs353project.param.evt.Trade.ShoppingCart.PlaceCartOrderEvt;
 import com.CS353.cs353project.param.out.ServiceResp;
 import com.CS353.cs353project.service.TradeService;
 import io.swagger.annotations.Api;
@@ -31,7 +34,7 @@ public class TradeController {
     @ResponseBody
     @ApiOperation(value = "上架图书接口", notes = "")
     @RequestMapping(value = "/bookOnShelve", method = RequestMethod.POST)
-    public ServiceResp bookOnShelve(HttpServletRequest request, MultipartFile file,BookOnShelveEvt evt) {
+    public ServiceResp bookOnShelve(HttpServletRequest request, MultipartFile file, BookOnShelveEvt evt) {
         try {
             return tradeService.bookOnShelve(request, file, evt);
         } catch (Exception e) {
@@ -47,9 +50,9 @@ public class TradeController {
     @ResponseBody
     @ApiOperation(value = "修改商品信息接口", notes = "")
     @RequestMapping(value = "/editBookOnShelve", method = RequestMethod.POST)
-    public ServiceResp editBookOnShelve(HttpServletRequest request,@RequestBody EditBookOnShelveEvt evt){
+    public ServiceResp editBookOnShelve(HttpServletRequest request, @RequestBody EditBookOnShelveEvt evt) {
         try {
-            return tradeService.editBookOnShelve(request,evt);
+            return tradeService.editBookOnShelve(request, evt);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("edit book 0n shelve function error");
@@ -64,9 +67,9 @@ public class TradeController {
     @ResponseBody
     @ApiOperation(value = "下架商品接口", notes = "")
     @RequestMapping(value = "/bookOffShelve", method = RequestMethod.POST)
-    public ServiceResp bookOffShelve(HttpServletRequest request,@RequestBody BookOffShelveEvt evt){
+    public ServiceResp bookOffShelve(HttpServletRequest request, @RequestBody BookOffShelveEvt evt) {
         try {
-            return tradeService.bookOffShelve(request,evt);
+            return tradeService.bookOffShelve(request, evt);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("delete book 0n shelve function error");
@@ -80,7 +83,7 @@ public class TradeController {
     @ResponseBody
     @ApiOperation(value = "查询商品", notes = "")
     @RequestMapping(value = "/queryCommodities", method = RequestMethod.POST)
-    public ServiceResp queryCommodities(@RequestBody QueryCommoditiesEvt evt){
+    public ServiceResp queryCommodities(@RequestBody QueryCommoditiesEvt evt) {
         try {
             return tradeService.queryCommodities(evt);
         } catch (Exception e) {
@@ -94,11 +97,11 @@ public class TradeController {
      * 下单商品
      */
     @ResponseBody
-    @ApiOperation(value = "下单商品",notes = "")
-    @RequestMapping(value = "/placeOrder",method = RequestMethod.POST)
-    public ServiceResp placeOrder(HttpServletRequest request, @RequestBody PlaceOrderEvt evt){
+    @ApiOperation(value = "下单商品", notes = "")
+    @RequestMapping(value = "/placeOrder", method = RequestMethod.POST)
+    public ServiceResp placeOrder(HttpServletRequest request, @RequestBody PlaceOrderEvt evt) {
         try {
-            return tradeService.placeOrder(request,evt);
+            return tradeService.placeOrder(request, evt);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("place Order function error");
@@ -110,9 +113,9 @@ public class TradeController {
      * 商家查看订单
      */
     @ResponseBody
-    @ApiOperation(value = "商家查看订单",notes = "")
-    @RequestMapping(value = "/sellerQueryOrderList",method = RequestMethod.POST)
-    public ServiceResp sellerQueryOrderList(@RequestBody SellerQueryOrderListEvt evt){
+    @ApiOperation(value = "商家查看订单", notes = "")
+    @RequestMapping(value = "/sellerQueryOrderList", method = RequestMethod.POST)
+    public ServiceResp sellerQueryOrderList(@RequestBody SellerQueryOrderListEvt evt) {
         try {
             return tradeService.sellerQueryOrderList(evt);
         } catch (Exception e) {
@@ -126,14 +129,79 @@ public class TradeController {
      * 买家查看订单
      */
     @ResponseBody
-    @ApiOperation(value = "买家查看订单",notes = "")
-    @RequestMapping(value = "/buyerQueryOrderList",method = RequestMethod.POST)
-    public ServiceResp buyerQueryOrderList(@RequestBody BuyerQueryOrderListEvt evt){
+    @ApiOperation(value = "买家查看订单", notes = "")
+    @RequestMapping(value = "/buyerQueryOrderList", method = RequestMethod.POST)
+    public ServiceResp buyerQueryOrderList(HttpServletRequest request, @RequestBody BuyerQueryOrderListEvt evt) {
         try {
-            return tradeService.buyerQueryOrderList(evt);
+            return tradeService.buyerQueryOrderList(request, evt);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("buyer query Order List function error");
+            return new ServiceResp().error("System error");
+        }
+    }
+
+
+    /**
+     * 添加购物车
+     */
+    @ResponseBody
+    @ApiOperation(value = "添加购物车", notes = "")
+    @RequestMapping(value = "/addShoppingCart", method = RequestMethod.POST)
+    public ServiceResp addShoppingCart(HttpServletRequest request, @RequestBody AddShoppingCartEvt evt) {
+        try {
+            return tradeService.addShoppingCart(request, evt);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("add shopping cart function error");
+            return new ServiceResp().error("System error");
+        }
+    }
+
+    /**
+     * 查询购物车
+     */
+    @ResponseBody
+    @ApiOperation(value = "查询购物车", notes = "")
+    @RequestMapping(value = "/queryShoppingCart", method = RequestMethod.POST)
+    public ServiceResp queryShoppingCart(HttpServletRequest request) {
+        try {
+            return tradeService.queryShoppingCart(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("query shopping cart function error");
+            return new ServiceResp().error("System error");
+        }
+    }
+
+    /**
+     * 修改购物车内商品信息(数量、删除)
+     */
+    @ResponseBody
+    @ApiOperation(value = "修改购物车内商品信息(数量、删除)", notes = "")
+    @RequestMapping(value = "/editShoppingCart", method = RequestMethod.POST)
+    public ServiceResp editShoppingCart(HttpServletRequest request, @RequestBody EditShoppingCartEvt evt) {
+        try {
+            return tradeService.editShoppingCart(request, evt);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("edit shopping cart function error");
+            return new ServiceResp().error("System error");
+        }
+    }
+
+    /**
+     * 购物车内下单(批量下单)
+     */
+    @ResponseBody
+    @ApiOperation(value = "购物车内下单(批量下单)", notes = "")
+    @RequestMapping(value = "/palaceCartOrder", method = RequestMethod.POST)
+    public ServiceResp palaceCartOrder(@RequestBody PlaceCartOrderEvt evt) {
+        try {
+            return tradeService.palaceCartOrder(evt);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("palace cart order function error");
             return new ServiceResp().error("System error");
         }
     }

@@ -35,7 +35,7 @@ public interface CommodityMapper extends BaseMapper<CommodityBean> {
      * 查询商品
      */
     @SelectProvider(type= TradeProvider.class,method = "queryCommodities")
-    Page<QueryCommoditiesModel> queryCommodities(QueryCommoditiesEvt evt, Page<QueryCommoditiesModel> page);
+    Page<QueryCommoditiesModel> queryCommodities(@Param("evt") QueryCommoditiesEvt evt, Page<QueryCommoditiesModel> page);
 
 
 }

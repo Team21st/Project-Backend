@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class BuyerQueryOrderListEvt extends QueryEvt {
-    @ApiModelProperty(value = "买家用户编码",required = true)
+    @ApiModelProperty(value = "买家用户编码",required = false)
     private String buyerNo;
     @ApiModelProperty(value = "图书名称",required = false)
     private String bookName;

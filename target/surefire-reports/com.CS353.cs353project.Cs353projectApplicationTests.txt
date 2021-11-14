@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.CS353.cs353project.Cs353projectApplicationTests
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 17.849 s - in com.CS353.cs353project.Cs353projectApplicationTests
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 21.079 s - in com.CS353.cs353project.Cs353projectApplicationTests

@@ -60,7 +60,7 @@ public class TradeProvider {
         List<Integer> finalTypeList = typeList;
         SQL sql = new SQL() {
             {
-                SELECT(" bookNo,bookName,userName,sellerNo,\n" +
+                SELECT(" bookNo,bookName,sellerName,sellerNo,\n" +
                         "case bookTag \n" +
                         "when '0' then '文学'\n" +
                         "when '1' then '随笔'\n" +
@@ -74,9 +74,12 @@ public class TradeProvider {
                         "when '9' then '专业知识' end,\n" +
                         "bookDesc,bookPrice,bookSale,bookStock,recommend,createTime,bookPicUrl,newOldDegree");
                 FROM("t_commodity");
-                WHERE("status='E' and auditStatus='1'");
+                WHERE("status='E' and auditStatus='1' and bookStock >0");
                 if (StringUtils.isNotBlank(evt.getBookName())) {
                     WHERE("bookName like CONCAT('%',#{evt.bookName},'%')");
+                }
+                if (StringUtils.isNotBlank(evt.getSellerName())) {
+                    WHERE("sellerName like CONCAT('%',#{evt.sellerName},'%')");
                 }
                 if (evt.getSortType() != null) {
                     if (finalTypeList.contains(1)) {//按时间最新排序
@@ -118,10 +121,10 @@ public class TradeProvider {
                 SELECT("orderNo,bookNo,bookName,sellerNo,address,consignee,phone,num,price,deTimeFrom,deTimeTo,buyerDisplay,sellerDisplay,orderStatus,createTime,createUser");
                 FROM("t_order");
                 WHERE("sellerNo=#{evt.sellerNo} and status='E'");
-                if(StringUtils.isNotBlank(evt.getBookName())){
+                if (StringUtils.isNotBlank(evt.getBookName())) {
                     WHERE("bookName like CONCAT('%',#{evt.bookName},'%')");
                 }
-                if(StringUtils.isNotBlank(evt.getConsignee())){
+                if (StringUtils.isNotBlank(evt.getConsignee())) {
                     WHERE("consignee =#{evt.consignee}");
                 }
                 if (evt.getOrderStatus() != null) {
@@ -166,10 +169,10 @@ public class TradeProvider {
                 SELECT("orderNo,bookNo,bookName,sellerNo,address,consignee,phone,num,price,deTimeFrom,deTimeTo,buyerDisplay,sellerDisplay,orderStatus,createTime,createUser");
                 FROM("t_order");
                 WHERE("buyerNo=#{evt.buyerNo} and status='E'");
-                if(StringUtils.isNotBlank(evt.getBookName())){
+                if (StringUtils.isNotBlank(evt.getBookName())) {
                     WHERE("bookName like CONCAT('%',#{evt.bookName},'%')");
                 }
-                if(StringUtils.isNotBlank(evt.getConsignee())){
+                if (StringUtils.isNotBlank(evt.getConsignee())) {
                     WHERE("consignee =#{evt.consignee}");
                 }
                 if (evt.getOrderStatus() != null) {
@@ -199,4 +202,20 @@ public class TradeProvider {
         };
         return sql.toString();
     }
+
+    /**
+     * 查询购物车
+     */
+    public String queryShoppingCart(String buyerNo) {
+        SQL sql = new SQL() {
+            {
+                SELECT("*");
+                FROM("t_shoppingCart");
+                WHERE("status='E' and buyerNo=#{buyerNo}");
+                ORDER_BY("sellerNo");
+            }
+        };
+        return sql.toString();
+    }
+
 }

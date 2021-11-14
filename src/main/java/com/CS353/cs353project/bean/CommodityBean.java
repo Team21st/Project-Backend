@@ -26,9 +26,10 @@ public class CommodityBean {
     @Column(name = "bookName", length = 128, nullable = false)
     private String bookName;
     //商家名称
-    @Column(name = "userName", length = 128, nullable = false)
-    private String userName;
+    @Column(name = "sellerName", length = 128, nullable = false)
+    private String sellerName;
     //商家用户编码
+    @Column(name = "sellerNo", length = 128, nullable = false)
     private  String sellerNo;
     //图书标签(0 文学,1 随笔,2 历史,3 科幻,4 奇幻,5 悬疑,6 推理,7 哲学,8 工具,9 专业知识)
     @Column(name = "bookTag", nullable = false)

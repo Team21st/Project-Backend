@@ -6,6 +6,9 @@ import com.CS353.cs353project.dao.mapper.ManagementMapper;
 import com.CS353.cs353project.dao.mapper.Trade.CommodityMapper;
 import com.CS353.cs353project.dao.mapper.UserMapper;
 import com.CS353.cs353project.param.evt.Management.*;
+import com.CS353.cs353project.param.evt.Message.SendAuditFailedMsgEvt;
+import com.CS353.cs353project.param.evt.Message.SendAuthorizeMsgEvt;
+import com.CS353.cs353project.param.evt.Message.SendBanUserMsgEvt;
 import com.CS353.cs353project.param.model.Management.QueryAuditRecordsModel;
 import com.CS353.cs353project.param.out.ServiceResp;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -28,6 +31,8 @@ public class ManagementService {
     private ManagementMapper managementMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private MessageService messageService;
 
     /**
      * 查询审核记录接口
@@ -66,20 +71,26 @@ public class ManagementService {
     /**
      * 设置用户封禁状态接口
      */
-    public ServiceResp banUser(HttpServletRequest request,BanUserEvt evt) {
+    public ServiceResp banUser(HttpServletRequest request, BanUserEvt evt) {
         UserBean userInfo = userMapper.queryUserByNo(evt.getUserNo());
         if (userInfo == null) {
             return new ServiceResp().error("User doesn't exist");
         }
-        userInfo.setUpdateUser((String) request.getAttribute("userEmail"));
+        String userEmail = (String) request.getAttribute("userEmail");
+        userInfo.setUpdateUser(userEmail);
         int result;
         if (evt.getIsBan() == 1) {
+            //发送封禁原因邮件
+            SendBanUserMsgEvt msgEvt = new SendBanUserMsgEvt();
+            msgEvt.setUserEmail(userInfo.getUserEmail());
+            msgEvt.setBanReason(evt.getBanReason());
+            messageService.senBanUserMsg(msgEvt);
             userInfo.setIsBan(1);
         } else {
             userInfo.setIsBan(0);
         }
         result = userMapper.updateById(userInfo);
-        if (result != 1){
+        if (result != 1) {
             return new ServiceResp().error("Failed to modify the user ban status");
         }
         return new ServiceResp().success("Successfully modify the user ban status");
@@ -89,24 +100,30 @@ public class ManagementService {
     /**
      * 设置用户认证状态接口
      */
-    public ServiceResp authorizeUser(HttpServletRequest request,AuthorizeUserEvt evt) {
+    public ServiceResp authorizeUser(HttpServletRequest request, AuthorizeUserEvt evt) {
         UserBean userInfo = userMapper.queryUserByNo(evt.getUserNo());
+        String userEmail = (String) request.getAttribute("userEmail");
         if (userInfo == null) {
             return new ServiceResp().error("User doesn't exist");
         }
-        if(userInfo.getAuthentication()==0){
+        if (userInfo.getAuthentication() == 0) {
             return new ServiceResp().error("this user haven't ask for authorize yet");
         }
         userInfo.setUpdateUser((String) request.getAttribute("userEmail"));
-        int result=0;
+        int result = 0;
         if (evt.getAuthentication() == 2) {//通过
             userInfo.setAuthentication(2);
             result = userMapper.updateById(userInfo);
-        } else if(evt.getAuthentication() ==3){//不通过
+        } else if (evt.getAuthentication() == 3) {//不通过
+            //发送邮件通知
+            SendAuthorizeMsgEvt msgEvt = new SendAuthorizeMsgEvt();
+            msgEvt.setUserEmail(userInfo.getUserEmail());
+            msgEvt.setReason(evt.getReason());
+            messageService.senAuthorizeMsg(msgEvt);
             userInfo.setAuthentication(3);
             result = userMapper.updateById(userInfo);
         }
-        if (result != 1){
+        if (result != 1) {
             return new ServiceResp().error("Failed to modify the user ban status");
         }
         return new ServiceResp().success("Successfully modify the user ban status");
@@ -115,19 +132,24 @@ public class ManagementService {
     /**
      * 通过\拒绝审核
      */
-    public ServiceResp auditBooks(HttpServletRequest request,AuditBooksEvt evt){
+    public ServiceResp auditBooks(HttpServletRequest request, AuditBooksEvt evt) {
         CommodityBean commodityInfo = commodityMapper.queryOneRecord(evt.getBookNo());
-        if(commodityInfo==null){
+        if (commodityInfo == null) {
             return new ServiceResp().error("record doesn't exist");
         }
-        if("1".equals(evt.getAuditStatus())){
+        if ("1".equals(evt.getAuditStatus())) {
             commodityInfo.setAuditStatus("1");
-        }else if("2".equals(evt.getAuditStatus())){
+        } else if ("2".equals(evt.getAuditStatus())) {
+            SendAuditFailedMsgEvt msgEvt = new SendAuditFailedMsgEvt();
+            msgEvt.setReason(evt.getReason());
+            msgEvt.setUserEmail(commodityInfo.getCreateUser());
+            msgEvt.setCommodityName(commodityInfo.getBookName());
+            messageService.sendAuditFailedMsg(msgEvt);
             commodityInfo.setAuditStatus("2");
         }
         commodityInfo.setUpdateUser((String) request.getAttribute("userEmail"));
         int result = commodityMapper.updateById(commodityInfo);
-        if(result!=1){
+        if (result != 1) {
             return new ServiceResp().error("audit books fail");
         }
         return new ServiceResp().success("audit books successfully");
