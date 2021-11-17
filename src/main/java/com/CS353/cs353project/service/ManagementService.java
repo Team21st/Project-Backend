@@ -133,13 +133,27 @@ public class ManagementService {
      * 通过\拒绝审核
      */
     public ServiceResp auditBooks(HttpServletRequest request, AuditBooksEvt evt) {
-        CommodityBean commodityInfo = commodityMapper.queryOneRecord(evt.getBookNo());
+        CommodityBean commodityInfo = commodityMapper.selectById(evt.getBookNo());
+        String administratorEmail = (String) request.getAttribute("userEmail");
+        String sellerNo = commodityInfo.getSellerNo();
+        UserBean sellerInfo = userMapper.selectById(sellerNo);
         if (commodityInfo == null) {
-            return new ServiceResp().error("record doesn't exist");
+            return new ServiceResp().error("audit record doesn't exist");
         }
-        if ("1".equals(evt.getAuditStatus())) {
+        if (sellerInfo == null) {
+            return new ServiceResp().error("seller record doesn't exist");
+        }
+        if ("1".equals(evt.getAuditStatus())) {//审核通过
             commodityInfo.setAuditStatus("1");
-        } else if ("2".equals(evt.getAuditStatus())) {
+            //增加该商家的发布的商品数量
+            Integer releaseCommNum = sellerInfo.getReleaseCommNum() + 1;
+            sellerInfo.setReleaseCommNum(releaseCommNum);
+            sellerInfo.setUpdateUser(administratorEmail);
+            int result = userMapper.updateById(sellerInfo);
+            if (result != 1) {
+                return new ServiceResp().error("update releaseCommNum failed");
+            }
+        } else if ("2".equals(evt.getAuditStatus())) {//审核不通过
             SendAuditFailedMsgEvt msgEvt = new SendAuditFailedMsgEvt();
             msgEvt.setReason(evt.getReason());
             msgEvt.setUserEmail(commodityInfo.getCreateUser());
@@ -147,7 +161,7 @@ public class ManagementService {
             messageService.sendAuditFailedMsg(msgEvt);
             commodityInfo.setAuditStatus("2");
         }
-        commodityInfo.setUpdateUser((String) request.getAttribute("userEmail"));
+        commodityInfo.setUpdateUser(administratorEmail);
         int result = commodityMapper.updateById(commodityInfo);
         if (result != 1) {
             return new ServiceResp().error("audit books fail");

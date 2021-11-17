@@ -7,7 +7,7 @@ D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\C
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\utils\VerifyCodeUtils.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\bean\ShoppingCartBean.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\dao\provider\TradeProvider.java
-D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Trade\BuyerQueryOrderListEvt.java
+D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Trade\Order\QueryOrderEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\async\JmsProducer.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\config\JwtInterceptorConfig.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Trade\ShoppingCart\EditShoppingCartEvt.java
@@ -39,8 +39,8 @@ D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\C
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\controller\TradeController.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Management\QueryAuditRecordsEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\utils\JwtUtils.java
-D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Trade\SellerQueryOrderListEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\User\UpdateUserPrivateInfoEvt.java
+D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Trade\Order\CancelOrderEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\utils\JudgeLegalFile.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Message\SendBanUserMsgEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Verify\SendVerifyCodeEvt.java
@@ -53,14 +53,15 @@ D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\C
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\config\MyMetaObjectHandler.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\User\ForgetUserPasswordEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\out\ServiceHeader.java
+D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Trade\Order\DeliverGoodEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\config\Swagger2Config.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\utils\AliyunOSSUtil.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\controller\MessageController.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\utils\FileTypeUtils.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\bean\BookInfoBean.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\bean\UserBean.java
+D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Trade\QueryBusinessEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\dao\mapper\Trade\OrderMapper.java
-D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Trade\PlaceOrderEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\bean\OrderBean.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\config\MybatisPlusConfig.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\controller\OssTestController.java
@@ -82,6 +83,7 @@ D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\C
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\service\ManagementService.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Trade\ShoppingCart\PlaceCartOrderEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\bean\WithdrawalBean.java
+D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Trade\Order\PlaceOrderEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\model\Trade\QueryCommoditiesModel.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\out\ServiceResp.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\exception\SendMailException.java

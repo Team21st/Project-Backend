@@ -81,4 +81,14 @@ public class OrderBean {
     //更新人员
     @Column(name = "updateUser", length = 128)
     private String updateUser;
+    //订单取消原因
+    @Column(name = "cancelReason", length = 256)
+    private String cancelReason;
+    //取消人
+    @Column(name = "cancelOperator", length = 128)
+    private String cancelOperator;
+    //（取消人角色：【买家：0，卖家：1】）
+    @Column(name = "cancelOperatorRole")
+    private Integer cancelOperatorRole;
+
 }

@@ -12,6 +12,7 @@ import com.CS353.cs353project.utils.AliyunOSSUtil;
 import com.CS353.cs353project.utils.JwtUtils;
 import com.CS353.cs353project.utils.Md5Util;
 import com.CS353.cs353project.utils.VerifyCodeUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -269,6 +270,5 @@ public class UserService {
         }
         return new ServiceResp().error("Apply For Certification fail");
     }
-
 
 }

@@ -1,10 +1,9 @@
 package com.CS353.cs353project.dao.provider;
 
 import com.CS353.cs353project.param.evt.Management.QueryAuditRecordsEvt;
-import com.CS353.cs353project.param.evt.Trade.BuyerQueryOrderListEvt;
 import com.CS353.cs353project.param.evt.Trade.QueryCommoditiesEvt;
-import com.CS353.cs353project.param.evt.Trade.SellerQueryOrderListEvt;
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.jdbc.SQL;
 
 import java.util.ArrayList;
@@ -30,11 +29,11 @@ public class TradeProvider {
                         "when '6' then '推理'\n" +
                         "when '7' then '哲学'\n" +
                         "when '8' then '工具'\n" +
-                        "when '9' then '专业知识' end,\n" +
+                        "when '9' then '专业知识' end as bookTag,\n" +
                         "case auditStatus \n" +
                         "when '1' then '通过'\n" +
                         "when '0' then '审核中'\n" +
-                        "else '审核不通过' end");
+                        "else '审核不通过' end as auditStatus");
                 FROM("t_commodity");
                 WHERE("status ='E'");
                 if (StringUtils.isNotBlank(evt.getType())) {
@@ -51,8 +50,7 @@ public class TradeProvider {
         return sql.toString();
     }
 
-
-    public String queryCommodities(QueryCommoditiesEvt evt) {
+    public String queryCommodities(@Param("evt") QueryCommoditiesEvt evt) {
         List<Integer> typeList = new ArrayList<>();
         if (evt.getSortType() != null) {
             typeList = Arrays.asList(evt.getSortType());
@@ -71,7 +69,7 @@ public class TradeProvider {
                         "when '6' then '推理'\n" +
                         "when '7' then '哲学'\n" +
                         "when '8' then '工具'\n" +
-                        "when '9' then '专业知识' end,\n" +
+                        "when '9' then '专业知识' end as bookTag,\n" +
                         "bookDesc,bookPrice,bookSale,bookStock,recommend,createTime,bookPicUrl,newOldDegree");
                 FROM("t_commodity");
                 WHERE("status='E' and auditStatus='1' and bookStock >0");
@@ -102,102 +100,6 @@ public class TradeProvider {
                     }
                 }
 
-            }
-        };
-        return sql.toString();
-    }
-
-    /**
-     * 商家查看订单
-     */
-    public String sellerQueryOrderList(SellerQueryOrderListEvt evt) {
-        List<Integer> typeList = new ArrayList<>();
-        if (evt.getSortType() != null) {
-            typeList = Arrays.asList(evt.getSortType());
-        }
-        List<Integer> finalTypeList = typeList;
-        SQL sql = new SQL() {
-            {
-                SELECT("orderNo,bookNo,bookName,sellerNo,address,consignee,phone,num,price,deTimeFrom,deTimeTo,buyerDisplay,sellerDisplay,orderStatus,createTime,createUser");
-                FROM("t_order");
-                WHERE("sellerNo=#{evt.sellerNo} and status='E'");
-                if (StringUtils.isNotBlank(evt.getBookName())) {
-                    WHERE("bookName like CONCAT('%',#{evt.bookName},'%')");
-                }
-                if (StringUtils.isNotBlank(evt.getConsignee())) {
-                    WHERE("consignee =#{evt.consignee}");
-                }
-                if (evt.getOrderStatus() != null) {
-                    WHERE("orderStatus=#{evt.orderStatus}");
-                }
-                if (evt.getSortType() != null) {
-                    if (finalTypeList.contains(0)) {//时间（最新在前）
-                        ORDER_BY("createTime desc");
-                    }
-                    if (finalTypeList.contains(1)) {//时间（最旧在前）
-                        ORDER_BY("createTime");
-                    }
-                    if (finalTypeList.contains(2)) {//金额（最多在前）
-                        ORDER_BY("price desc");
-                    }
-                    if (finalTypeList.contains(3)) {//金额（最少在前）
-                        ORDER_BY("price");
-                    }
-                    if (finalTypeList.contains(4)) {//购买数量（最多在前）
-                        ORDER_BY("num desc");
-                    }
-                    if (finalTypeList.contains(5)) {//购买数量（最少在前）
-                        ORDER_BY("num");
-                    }
-                }
-            }
-        };
-        return sql.toString();
-    }
-
-    /**
-     * 买家查看订单
-     */
-    public String buyerQueryOrderList(BuyerQueryOrderListEvt evt) {
-        List<Integer> typeList = new ArrayList<>();
-        if (evt.getSortType() != null) {
-            typeList = Arrays.asList(evt.getSortType());
-        }
-        List<Integer> finalTypeList = typeList;
-        SQL sql = new SQL() {
-            {
-                SELECT("orderNo,bookNo,bookName,sellerNo,address,consignee,phone,num,price,deTimeFrom,deTimeTo,buyerDisplay,sellerDisplay,orderStatus,createTime,createUser");
-                FROM("t_order");
-                WHERE("buyerNo=#{evt.buyerNo} and status='E'");
-                if (StringUtils.isNotBlank(evt.getBookName())) {
-                    WHERE("bookName like CONCAT('%',#{evt.bookName},'%')");
-                }
-                if (StringUtils.isNotBlank(evt.getConsignee())) {
-                    WHERE("consignee =#{evt.consignee}");
-                }
-                if (evt.getOrderStatus() != null) {
-                    WHERE("orderStatus=#{evt.orderStatus}");
-                }
-                if (evt.getSortType() != null) {
-                    if (finalTypeList.contains(0)) {//时间（最新在前）
-                        ORDER_BY("createTime desc");
-                    }
-                    if (finalTypeList.contains(1)) {//时间（最旧在前）
-                        ORDER_BY("createTime");
-                    }
-                    if (finalTypeList.contains(2)) {//金额（最多在前）
-                        ORDER_BY("price desc");
-                    }
-                    if (finalTypeList.contains(3)) {//金额（最少在前）
-                        ORDER_BY("price");
-                    }
-                    if (finalTypeList.contains(4)) {//购买数量（最多在前）
-                        ORDER_BY("num desc");
-                    }
-                    if (finalTypeList.contains(5)) {//购买数量（最少在前）
-                        ORDER_BY("num");
-                    }
-                }
             }
         };
         return sql.toString();

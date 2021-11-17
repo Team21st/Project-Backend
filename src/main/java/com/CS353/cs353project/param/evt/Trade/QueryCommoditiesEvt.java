@@ -6,6 +6,9 @@ import lombok.Data;
 
 @Data
 public class QueryCommoditiesEvt extends QueryEvt {
+    //图书编码
+    @ApiModelProperty(value = "图书编码",required = false)
+    private String bookNo;
     //书名
     @ApiModelProperty(value = "书名",required = false)
     private String bookName;
