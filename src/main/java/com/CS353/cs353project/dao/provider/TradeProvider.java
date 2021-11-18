@@ -6,9 +6,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.jdbc.SQL;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class TradeProvider {
     /**
@@ -51,11 +48,6 @@ public class TradeProvider {
     }
 
     public String queryCommodities(@Param("evt") QueryCommoditiesEvt evt) {
-        List<Integer> typeList = new ArrayList<>();
-        if (evt.getSortType() != null) {
-            typeList = Arrays.asList(evt.getSortType());
-        }
-        List<Integer> finalTypeList = typeList;
         SQL sql = new SQL() {
             {
                 SELECT(" bookNo,bookName,sellerName,sellerNo,\n" +
@@ -70,7 +62,7 @@ public class TradeProvider {
                         "when '7' then '哲学'\n" +
                         "when '8' then '工具'\n" +
                         "when '9' then '专业知识' end as bookTag,\n" +
-                        "bookDesc,bookPrice,bookSale,bookStock,recommend,createTime,bookPicUrl,newOldDegree");
+                        "bookDesc,bookPrice,bookSale,bookStock,recommend,createTime,newOldDegree");
                 FROM("t_commodity");
                 WHERE("status='E' and auditStatus='1' and bookStock >0");
                 if (StringUtils.isNotBlank(evt.getBookName())) {
@@ -80,22 +72,22 @@ public class TradeProvider {
                     WHERE("sellerName like CONCAT('%',#{evt.sellerName},'%')");
                 }
                 if (evt.getSortType() != null) {
-                    if (finalTypeList.contains(1)) {//按时间最新排序
+                    if (evt.getSortType().contains(1)) {//按时间最新排序
                         ORDER_BY("createTime desc");
                     }
-                    if (finalTypeList.contains(2)) {//按时间最久排序
+                    if (evt.getSortType().contains(2)) {//按时间最久排序
                         ORDER_BY("createTime");
                     }
-                    if (finalTypeList.contains(3)) {//按价格低到高排序
+                    if (evt.getSortType().contains(3)) {//按价格低到高排序
                         ORDER_BY("bookPrice");
                     }
-                    if (finalTypeList.contains(4)) {//按价格高到低排序
+                    if (evt.getSortType().contains(4)) {//按价格高到低排序
                         ORDER_BY("bookPrice desc");
                     }
-                    if (finalTypeList.contains(5)) {//按图书销量最多排序
+                    if (evt.getSortType().contains(5)) {//按图书销量最多排序
                         ORDER_BY("bookSale desc");
                     }
-                    if (finalTypeList.contains(6)) {//按图书销量最少排序
+                    if (evt.getSortType().contains(6)) {//按图书销量最少排序
                         ORDER_BY("bookSale");
                     }
                 }

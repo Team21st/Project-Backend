@@ -22,9 +22,9 @@ public class CommPicBean {
     @TableId("commPicNo")
     @Column(name = "commPicNo", length = 32, nullable = false)
     private String commPicNo;
-    //商品编码
-    @Column(name = "commNo", length = 32, nullable = false)
-    private String commNo;
+    //书本编码
+    @Column(name = "bookNo", length = 32, nullable = false)
+    private String bookNo;
     //图片地址
     @Column(name = "pictureUrl", length = 128, nullable = false)
     private String pictureUrl;

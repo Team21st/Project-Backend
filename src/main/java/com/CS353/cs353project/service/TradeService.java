@@ -1,9 +1,7 @@
 package com.CS353.cs353project.service;
 
-import com.CS353.cs353project.bean.CommodityBean;
-import com.CS353.cs353project.bean.OrderBean;
-import com.CS353.cs353project.bean.ShoppingCartBean;
-import com.CS353.cs353project.bean.UserBean;
+import com.CS353.cs353project.bean.*;
+import com.CS353.cs353project.dao.mapper.Trade.CommPicMapper;
 import com.CS353.cs353project.dao.mapper.Trade.CommodityMapper;
 import com.CS353.cs353project.dao.mapper.Trade.OrderMapper;
 import com.CS353.cs353project.dao.mapper.Trade.ShoppingCartMapper;
@@ -15,6 +13,7 @@ import com.CS353.cs353project.param.evt.Trade.ShoppingCart.AddShoppingCartEvt;
 import com.CS353.cs353project.param.evt.Trade.ShoppingCart.EditShoppingCartEvt;
 import com.CS353.cs353project.param.evt.Trade.ShoppingCart.PlaceCartOrderEvt;
 import com.CS353.cs353project.param.model.Oss.AliyunOssResultModel;
+import com.CS353.cs353project.param.model.Trade.QueryCommoditiesModel;
 import com.CS353.cs353project.param.out.ServiceHeader;
 import com.CS353.cs353project.param.out.ServiceResp;
 import com.CS353.cs353project.utils.AliyunOSSUtil;
@@ -29,6 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.*;
 
 @Service
@@ -45,11 +46,13 @@ public class TradeService {
     private ShoppingCartMapper shoppingCartMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private CommPicMapper commPicMapper;
 
     /**
      * 上架图书接口(提交审核)
      */
-    public ServiceResp bookOnShelve(HttpServletRequest request, MultipartFile file, BookOnShelveEvt evt) {
+    public ServiceResp bookOnShelve(HttpServletRequest request, MultipartFile[] files, BookOnShelveEvt evt) {
         //用户邮箱(唯一账户识别标准,而不是用户名)
         String userEmail = (String) request.getAttribute("userEmail");
         String userName = (String) request.getAttribute("userName");
@@ -57,7 +60,8 @@ public class TradeService {
 
         CommodityBean commodityBean = new CommodityBean();
         BeanUtils.copyProperties(evt, commodityBean);
-        commodityBean.setBookNo(StringUtils.replace(UUID.randomUUID().toString(), "-", ""));
+        String bookNo = StringUtils.replace(UUID.randomUUID().toString(), "-", "");
+        commodityBean.setBookNo(bookNo);
         commodityBean.setSellerName(userName);
         commodityBean.setRecommend(0);
         commodityBean.setBookStock(evt.getBookStock());
@@ -71,21 +75,57 @@ public class TradeService {
         commodityBean.setUpdateUser(userEmail);
         commodityBean.setAuditStatus("0");
 
-        //上传图书实物图
-        String ossUrl = "SHBM/OnShelveBook/" + userEmail + "/" + evt.getBookName();
-        AliyunOssResultModel resultModel = AliyunOSSUtil.uploadFile(file, ossUrl);
-        if (!resultModel.isSuccess()) {//若上传图片不成功
-            return new ServiceResp().error(resultModel.getMsg());
+        //上传图书实物图，不允许用户不传图片
+        int count = 1;
+        List<String> insertPicResult = new ArrayList<>();
+        for (MultipartFile file : files) {
+            String ossUrl = "SHBM/OnShelveBook/" + userEmail + "/" + evt.getBookName() + "_" + count;
+            AliyunOssResultModel resultModel = AliyunOSSUtil.uploadFile(file, ossUrl);
+            if (!resultModel.isSuccess()) {//若上传图片不成功
+                return new ServiceResp().error(resultModel.getMsg());
+            }
+            String bookPicUrl = resultModel.getUrl();
+            CommPicBean commPicBean = new CommPicBean();
+            commPicBean.setPictureUrl(bookPicUrl);
+            commPicBean.setCreateUser(userEmail);
+            commPicBean.setUpdateUser(userEmail);
+            commPicBean.setStatus("E");
+            commPicBean.setBookNo(bookNo);
+            commPicBean.setCommPicNo(StringUtils.replace(UUID.randomUUID().toString(), "-", ""));
+            int result3 = commPicMapper.insert(commPicBean);
+            if (result3 != 1) {
+                insertPicResult.add("failed when insert number " + count + " picture");
+            }
+            count++;
         }
-        String bookPicUrl = resultModel.getUrl();
-        commodityBean.setBookPicUrl(bookPicUrl);
-        //存入数据库
+
+        //存入数据库(更新商品记录)
         int result = commodityMapper.insert(commodityBean);
         if (result == 1) {
             logger.info(userEmail + " make books on shelve");
             return new ServiceResp().success(" make books on shelve success");
         }
-        return new ServiceResp().error("On shelve failed");
+        UserBean sellerInfo = userMapper.selectById(sellerNo);
+        if (sellerInfo == null) {
+            return new ServiceResp().error("seller record not found");
+        }
+        sellerInfo.setReleaseCommNum(sellerInfo.getReleaseCommNum() + 1);
+        sellerInfo.setUpdateUser(userEmail);
+        int result2 = userMapper.updateById(sellerInfo);
+        if (result2 != 1) {
+            return new ServiceResp().error("update seller ReleaseCommNum error");
+        }
+        //若有某几张图片上传失败
+        if (insertPicResult.size() != 0) {
+            ServiceHeader respHead = new ServiceHeader();
+            respHead.setRespCode(-1);
+            respHead.setRespMsg("There are some picture of book insert failed, you can try to upload them again in edit page");
+            ServiceResp resp = new ServiceResp();
+            resp.setHead(respHead);
+            resp.setBody(insertPicResult);
+            return resp;
+        }
+        return new ServiceResp().error("On shelve successful");
     }
 
     /**
@@ -97,6 +137,7 @@ public class TradeService {
             return new ServiceResp().error("can't find the record information");
         }
         BeanUtils.copyProperties(evt, recordInfo);
+        recordInfo.setAuditStatus("0");//设置待审核
         recordInfo.setUpdateUser((String) request.getAttribute("userEmail"));
         int result = commodityMapper.updateById(recordInfo);
         if (result != 1) {
@@ -152,62 +193,41 @@ public class TradeService {
      * 查询商品
      */
     public ServiceResp queryCommodities(QueryCommoditiesEvt evt) {
-        List<Integer> typeList = new ArrayList<>();
-        if (evt.getSortType() != null) {
-            typeList = Arrays.asList(evt.getSortType());
-        }
-        //mp条件构造
-        QueryWrapper<CommodityBean> queryWrapper = new QueryWrapper<>();
-        queryWrapper
-                .select(" bookNo,bookName,sellerName,sellerNo,\n" +
-                        "case bookTag \n" +
-                        "when '0' then '文学'\n" +
-                        "when '1' then '随笔'\n" +
-                        "when '2' then '历史'\n" +
-                        "when '3' then '科幻'\n" +
-                        "when '4' then '奇幻'\n" +
-                        "when '5' then '悬疑'\n" +
-                        "when '6' then '推理'\n" +
-                        "when '7' then '哲学'\n" +
-                        "when '8' then '工具'\n" +
-                        "when '9' then '专业知识' end,\n" +
-                        "bookDesc,bookPrice,bookSale,bookStock,recommend,createTime,bookPicUrl,newOldDegree,bookPicUrl")
-                .eq("status", "E")
-                .eq("auditStatus", "1")
-                .gt("bookStock", 0);
-        if (StringUtils.isNotBlank(evt.getBookNo())) {
-            queryWrapper.eq("bookNo", evt.getBookNo());
-        }
-        if (StringUtils.isNotBlank(evt.getBookName())) {
-            queryWrapper.like("bookName", evt.getBookName());
-        }
-        if (StringUtils.isNotBlank(evt.getSellerName())) {
-            queryWrapper.like("sellerName", evt.getSellerName());
-        }
-        if (evt.getSortType() != null) {
-            if (typeList.contains(1)) {//按时间最新排序
-                queryWrapper.orderByDesc("createTime");
-            }
-            if (typeList.contains(2)) {//按时间最久排序
-                queryWrapper.orderByAsc("createTime");
-            }
-            if (typeList.contains(3)) {//按价格低到高排序
-                queryWrapper.orderByAsc("bookPrice");
-            }
-            if (typeList.contains(4)) {//按价格高到低排序
-                queryWrapper.orderByDesc("bookPrice");
-            }
-            if (typeList.contains(5)) {//按图书销量最多排序
-                queryWrapper.orderByDesc("bookSale");
-            }
-            if (typeList.contains(6)) {//按图书销量最少排序
-                queryWrapper.orderByAsc("bookSale");
-            }
-        }
-        Page<CommodityBean> page = new Page<>(evt.getQueryPage(), evt.getQuerySize());
-        Page<CommodityBean> modelPage = commodityMapper.selectPage(page, queryWrapper);
+        Page<QueryCommoditiesModel> page = new Page<>(evt.getQueryPage(), evt.getQuerySize());
+        Page<QueryCommoditiesModel> modelPage = commodityMapper.queryCommodities(evt, page);
         if (modelPage.getRecords() == null) {
             return new ServiceResp().error("can not find relative books");
+        }
+
+        //拼接成价格格式，并且存入商品图片
+        DecimalFormat df = new DecimalFormat();
+        df.applyPattern("#,##0.00");
+        for (QueryCommoditiesModel model : page.getRecords()) {
+            //金额格式化
+            BigDecimal decimalPrice = new BigDecimal(model.getBookPrice());
+            StringBuffer sb1 = new StringBuffer(df.format(decimalPrice));
+            sb1.insert(0, "$");
+            model.setTruePrice(new String(sb1));
+            //存入商品图片
+            QueryWrapper<CommPicBean> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("bookNo", model.getBookNo());
+            queryWrapper.eq("status", "E");
+            List<CommPicBean> picUrlList = commPicMapper.selectList(queryWrapper);
+            if (picUrlList != null) {
+                for (int i = 1; i < picUrlList.size() + 1; i++) {
+                    String bookUrlName = "bookPicUrl";
+                    bookUrlName += i;
+                    if (bookUrlName.equals("bookPicUrl1")) {
+                        model.setBookPicUrl1(picUrlList.get(i).getPictureUrl());
+                    } else if (bookUrlName.equals("bookPicUrl2")) {
+                        model.setBookPicUrl2(picUrlList.get(i).getPictureUrl());
+                    } else if (bookUrlName.equals("bookPicUrl3")) {
+                        model.setBookPicUrl3(picUrlList.get(i).getPictureUrl());
+                    } else {
+                        model.setBookPicUrl4(picUrlList.get(i).getPictureUrl());
+                    }
+                }
+            }
         }
         return new ServiceResp().success(modelPage);
     }
@@ -221,7 +241,7 @@ public class TradeService {
             typeList = Arrays.asList(evt.getSortType());
         }
         QueryWrapper<UserBean> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("userNo,userName,userEmail,userInfo,releaseCommNum,soldCommNum,createTime")
+        queryWrapper.select("userNo,userName,userEmail,userInfo,releaseCommNum,soldCommNum,createTime,profileUrl")
                 .eq("status", "E")
                 .eq("authentication", 2);
         if (StringUtils.isNotBlank(evt.getSellerName())) {
@@ -258,28 +278,28 @@ public class TradeService {
     /**
      * 查看订单
      */
-    public ServiceResp queryOrder(HttpServletRequest request, QueryOrderEvt evt){
+    public ServiceResp queryOrder(HttpServletRequest request, QueryOrderEvt evt) {
         List<Integer> typeList = new ArrayList<>();
         if (evt.getSortType() != null) {
             typeList = Arrays.asList(evt.getSortType());
         }
-        String operatorNo=(String) request.getAttribute("userNo");
-        QueryWrapper<OrderBean> queryWrapper =new QueryWrapper<>();
+        String operatorNo = (String) request.getAttribute("userNo");
+        QueryWrapper<OrderBean> queryWrapper = new QueryWrapper<>();
         queryWrapper.select("orderNo,bookNo,bookName,sellerNo,address,consignee,phone,num,price,deTimeFrom,deTimeTo,buyerDisplay,sellerDisplay,orderStatus,createTime,createUser")
-                .eq("status","E");
-        if (evt.getOperatorRole()==0){
-            queryWrapper.eq("buyerNo",operatorNo);
-        }else{
-            queryWrapper.eq("sellerNo",operatorNo);
+                .eq("status", "E");
+        if (evt.getOperatorRole() == 0) {
+            queryWrapper.eq("buyerNo", operatorNo);
+        } else {
+            queryWrapper.eq("sellerNo", operatorNo);
         }
-        if(StringUtils.isNotBlank(evt.getBookName())){
-            queryWrapper.like("bookName",evt.getBookName());
+        if (StringUtils.isNotBlank(evt.getBookName())) {
+            queryWrapper.like("bookName", evt.getBookName());
         }
-        if(StringUtils.isNotBlank(evt.getConsignee())){
-            queryWrapper.like("consignee",evt.getConsignee());
+        if (StringUtils.isNotBlank(evt.getConsignee())) {
+            queryWrapper.like("consignee", evt.getConsignee());
         }
-        if(evt.getOrderStatus()!=null){
-            queryWrapper.eq("orderStatus",evt.getOrderStatus());
+        if (evt.getOrderStatus() != null) {
+            queryWrapper.eq("orderStatus", evt.getOrderStatus());
         }
         if (evt.getSortType() != null) {
             if (typeList.contains(0)) {//时间（最新在前）
@@ -301,8 +321,8 @@ public class TradeService {
                 queryWrapper.orderByAsc("num");
             }
         }
-        Page<OrderBean> page=new Page<>(evt.getQueryPage(), evt.getQuerySize());
-        Page<OrderBean> modelPage=orderMapper.selectPage(page,queryWrapper);
+        Page<OrderBean> page = new Page<>(evt.getQueryPage(), evt.getQuerySize());
+        Page<OrderBean> modelPage = orderMapper.selectPage(page, queryWrapper);
         if (modelPage.getRecords() == null) {
             return new ServiceResp().error("can not find relative orders");
         }
@@ -323,6 +343,10 @@ public class TradeService {
         if (commodityInfo == null) {
             return new ServiceResp().error("commodity doesn't exist");
         }
+        CommPicBean commPicInfo = commPicMapper.selectById(commodityInfo.getBookNo());
+        if (commPicInfo == null) {
+            return new ServiceResp().error("commodity picture record doesn't exist");
+        }
         //加入t_shoppingCart表
         ShoppingCartBean shoppingCartBean = new ShoppingCartBean();
         shoppingCartBean.setId(StringUtils.replace(UUID.randomUUID().toString(), "-", ""));
@@ -333,7 +357,26 @@ public class TradeService {
         shoppingCartBean.setSellerName(commodityInfo.getSellerName());
         shoppingCartBean.setSellerNo(commodityInfo.getSellerNo());
         shoppingCartBean.setBookPrice(commodityInfo.getBookPrice());
-        shoppingCartBean.setBookPicUrl(commodityInfo.getBookPicUrl());
+        //存入商品图片
+        QueryWrapper<CommPicBean> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("bookNo", commodityInfo.getBookNo());
+        queryWrapper.eq("status", "E");
+        List<CommPicBean> picUrlList = commPicMapper.selectList(queryWrapper);
+        if (picUrlList != null) {
+            for (int i = 1; i < picUrlList.size() + 1; i++) {
+                String bookUrlName = "bookPicUrl";
+                bookUrlName += i;
+                if (bookUrlName.equals("bookPicUrl1")) {
+                    shoppingCartBean.setBookPicUrl1(picUrlList.get(i).getPictureUrl());
+                } else if (bookUrlName.equals("bookPicUrl2")) {
+                    shoppingCartBean.setBookPicUrl2(picUrlList.get(i).getPictureUrl());
+                } else if (bookUrlName.equals("bookPicUrl3")) {
+                    shoppingCartBean.setBookPicUrl3(picUrlList.get(i).getPictureUrl());
+                } else {
+                    shoppingCartBean.setBookPicUrl4(picUrlList.get(i).getPictureUrl());
+                }
+            }
+        }
         shoppingCartBean.setBookTag(commodityInfo.getBookTag());
         shoppingCartBean.setNewOldDegree(commodityInfo.getNewOldDegree());
         shoppingCartBean.setStatus("E");
@@ -353,10 +396,10 @@ public class TradeService {
      */
     public ServiceResp queryShoppingCart(HttpServletRequest request) {
         String buyerNo = (String) request.getAttribute("userNo");
-        QueryWrapper<ShoppingCartBean> queryWrapper=new QueryWrapper<>();
+        QueryWrapper<ShoppingCartBean> queryWrapper = new QueryWrapper<>();
         queryWrapper.select();
-        queryWrapper.eq("buyerNo",buyerNo);
-        queryWrapper.eq("status","E");
+        queryWrapper.eq("buyerNo", buyerNo);
+        queryWrapper.eq("status", "E");
         queryWrapper.orderByAsc("buyerNo");
         List<ShoppingCartBean> returnModel = shoppingCartMapper.selectList(queryWrapper);
         if (returnModel == null) {
@@ -604,22 +647,22 @@ public class TradeService {
     /**
      * 商家确认订单发货
      */
-    public ServiceResp deliverGood(HttpServletRequest request,DeliverGoodEvt evt){
+    public ServiceResp deliverGood(HttpServletRequest request, DeliverGoodEvt evt) {
         String sellerEmail = (String) request.getAttribute("userEmail");
         OrderBean orderInfo = orderMapper.selectById(evt.getOrderNo());
-        if(orderInfo==null){
+        if (orderInfo == null) {
             return new ServiceResp().error("order record not found");
         }
         CommodityBean bookInfo = commodityMapper.selectById(orderInfo.getBookNo());
-        if(bookInfo==null){
+        if (bookInfo == null) {
             return new ServiceResp().error("book record not found");
         }
         //增加销量、减少商家已发布商品数量
         int currentStock = bookInfo.getBookStock();
-        int currentSale=bookInfo.getBookSale()+orderInfo.getNum();
+        int currentSale = bookInfo.getBookSale() + orderInfo.getNum();
         bookInfo.setBookSale(currentSale);
         int result = commodityMapper.updateById(bookInfo);
-        if(result!=1){
+        if (result != 1) {
             return new ServiceResp().error("increase bookSale failed");
         }
         //若此时该商品库存以为0,表示该种类商品已下架(更新user表)

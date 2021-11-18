@@ -21,7 +21,7 @@ public class ServiceResp<T> implements Serializable {
 
     public ServiceResp error(){
         this.head.setRespCode(-1);
-        this.head.setRespMsg("操作失败");
+        this.head.setRespMsg("operation failed");
         this.setBody(null);
         this.head.setRespTime(String.valueOf(new Date().getTime()));
         return this;
@@ -61,7 +61,7 @@ public class ServiceResp<T> implements Serializable {
 
     public ServiceResp success(T body){
         this.head.setRespCode(0);
-        this.head.setRespMsg("操作成功");
+        this.head.setRespMsg("operation success");
         this.setBody(body);
         this.head.setRespTime(String.valueOf(new Date().getTime()));
         return this;

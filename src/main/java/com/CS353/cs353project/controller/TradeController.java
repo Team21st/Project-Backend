@@ -39,7 +39,7 @@ public class TradeController {
     @ResponseBody
     @ApiOperation(value = "上架图书接口", notes = "")
     @RequestMapping(value = "/bookOnShelve", method = RequestMethod.POST)
-    public ServiceResp bookOnShelve(HttpServletRequest request, MultipartFile file, BookOnShelveEvt evt) {
+    public ServiceResp bookOnShelve(HttpServletRequest request, MultipartFile[] file, BookOnShelveEvt evt) {
         try {
             return tradeService.bookOnShelve(request, file, evt);
         } catch (Exception e) {

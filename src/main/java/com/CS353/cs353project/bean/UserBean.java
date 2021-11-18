@@ -74,10 +74,10 @@ public class UserBean {
     @Column(name = "photoUrl2", length = 128)
     private String photoUrl2;
     //已发布商品数量
-    @Column(name = "releaseCommNum")
+    @Column(name = "releaseCommNum",nullable = false)
     private Integer releaseCommNum;
     //已卖出商品数量
-    @Column(name = "soldCommNum")
+    @Column(name = "soldCommNum",nullable = false)
     private Integer soldCommNum;
     //最近登录时间
     @Column(name = "lastLoginTime")

@@ -66,6 +66,8 @@ public class UserService {
         addBean.setAuthentication(0);
         addBean.setIsBan(0);
         addBean.setUnquaComm(0);
+        addBean.setReleaseCommNum(0);
+        addBean.setSoldCommNum(0);
         addBean.setCreateUser(evt.getUserEmail());
         addBean.setUpdateUser(evt.getUserEmail());
         int info = userMapper.insert(addBean);

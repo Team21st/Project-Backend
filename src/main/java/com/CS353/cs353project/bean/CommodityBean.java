@@ -81,9 +81,6 @@ public class CommodityBean {
     //审核留言
     @Column(name = "auditMsg", length = 256)
     private String auditMsg;
-    //图书实物图地址
-    @Column(name = "bookPicUrl", length = 128, nullable = false)
-    private String bookPicUrl;
     //图书新旧程度(ex:九五新:95)
     @Column(name = "newOldDegree")
     private Integer newOldDegree;

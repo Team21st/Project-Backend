@@ -43,9 +43,18 @@ public class ShoppingCartBean {
     //图书单价
     @Column(name = "bookPrice", length = 128, nullable = false)
     private Double bookPrice;
-    //图书实物图地址
-    @Column(name = "bookPicUrl", length = 128, nullable = false)
-    private String bookPicUrl;
+    //图书实物图地址1
+    @Column(name = "bookPicUrl1", length = 128, nullable = false)
+    private String bookPicUrl1;
+    //图书实物图地址2
+    @Column(name = "bookPicUrl2", length = 128, nullable = false)
+    private String bookPicUrl2;
+    //图书实物图地址3
+    @Column(name = "bookPicUrl3", length = 128, nullable = false)
+    private String bookPicUrl3;
+    //图书实物图地址4
+    @Column(name = "bookPicUrl4", length = 128, nullable = false)
+    private String bookPicUrl4;
     //图书标签(0 文学,1 随笔,2 历史,3 科幻,4 奇幻,5 悬疑,6 推理,7 哲学,8 工具,9 专业知识)
     @Column(name = "bookTag", nullable = false)
     private String  bookTag;

@@ -62,6 +62,7 @@ D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\C
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\bean\UserBean.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Trade\QueryBusinessEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\dao\mapper\Trade\OrderMapper.java
+D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\enums\sortType.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\bean\OrderBean.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\config\MybatisPlusConfig.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\controller\OssTestController.java

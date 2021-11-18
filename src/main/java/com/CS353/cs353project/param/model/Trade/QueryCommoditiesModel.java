@@ -2,6 +2,8 @@ package com.CS353.cs353project.param.model.Trade;
 
 
 import lombok.Data;
+
+import javax.persistence.Column;
 import java.util.Date;
 
 @Data
@@ -30,10 +32,17 @@ public class QueryCommoditiesModel {
     private String customTags;
     //创建时间
     private Date createTime;
-    //图书实物图地址
-    private String bookPicUrl;
     //图书新旧程度(ex:九五新:95)
     private Integer newOldDegree;
     //进行处理过的价格
     private String truePrice;
+    //图书实物图地址1
+    private String bookPicUrl1;
+    //图书实物图地址2
+    private String bookPicUrl2;
+    //图书实物图地址3
+    private String bookPicUrl3;
+    //图书实物图地址4
+    private String bookPicUrl4;
+
 }
