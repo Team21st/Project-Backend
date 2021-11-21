@@ -1,11 +1,9 @@
 package com.CS353.cs353project.controller;
 
 import com.CS353.cs353project.anotation.PassToken;
+import com.CS353.cs353project.dao.mapper.Trade.ProcessingCancellationRequestEvt;
 import com.CS353.cs353project.param.evt.Trade.*;
-import com.CS353.cs353project.param.evt.Trade.Order.CancelOrderEvt;
-import com.CS353.cs353project.param.evt.Trade.Order.DeliverGoodEvt;
-import com.CS353.cs353project.param.evt.Trade.Order.PlaceOrderEvt;
-import com.CS353.cs353project.param.evt.Trade.Order.QueryOrderEvt;
+import com.CS353.cs353project.param.evt.Trade.Order.*;
 import com.CS353.cs353project.param.evt.Trade.ShoppingCart.AddShoppingCartEvt;
 import com.CS353.cs353project.param.evt.Trade.ShoppingCart.EditShoppingCartEvt;
 import com.CS353.cs353project.param.evt.Trade.ShoppingCart.PlaceCartOrderEvt;
@@ -242,6 +240,54 @@ public class TradeController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("deliver good function error");
+            return new ServiceResp().error("System error");
+        }
+    }
+
+    /**
+     * 买家确认收货
+     */
+    @ResponseBody
+    @ApiOperation(value = "买家确认收货", notes = "")
+    @RequestMapping(value = "/confirmReceipt", method = RequestMethod.POST)
+    public ServiceResp confirmReceipt(HttpServletRequest request,@RequestBody String orderNo) {
+        try {
+            return tradeService.confirmReceipt(request,orderNo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("confirm receipt function error");
+            return new ServiceResp().error("System error");
+        }
+    }
+
+    /**
+     * 卖家处理取消订单申请
+     */
+    @ResponseBody
+    @ApiOperation(value = "卖家处理取消订单申请", notes = "")
+    @RequestMapping(value = "/processingCancellationRequest", method = RequestMethod.POST)
+    public ServiceResp processingCancellationRequest(HttpServletRequest request,@RequestBody ProcessingCancellationRequestEvt evt) {
+        try {
+            return tradeService.processingCancellationRequest(request,evt);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("processing Cancellation Request function error");
+            return new ServiceResp().error("System error");
+        }
+    }
+
+    /**
+     * 删除订单记录
+     */
+    @ResponseBody
+    @ApiOperation(value = "删除订单记录", notes = "")
+    @RequestMapping(value = "/deleteOrderRecord", method = RequestMethod.POST)
+    public ServiceResp deleteOrderRecord(HttpServletRequest request, @RequestBody DeleteOrderRecordEvt evt) {
+        try {
+            return tradeService.deleteOrderRecord(request,evt);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("delete Order Record function error");
             return new ServiceResp().error("System error");
         }
     }

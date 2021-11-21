@@ -1,11 +1,9 @@
 package com.CS353.cs353project.service;
 
 import com.CS353.cs353project.bean.*;
-import com.CS353.cs353project.dao.mapper.Trade.CommPicMapper;
-import com.CS353.cs353project.dao.mapper.Trade.CommodityMapper;
-import com.CS353.cs353project.dao.mapper.Trade.OrderMapper;
-import com.CS353.cs353project.dao.mapper.Trade.ShoppingCartMapper;
+import com.CS353.cs353project.dao.mapper.Trade.*;
 import com.CS353.cs353project.dao.mapper.UserMapper;
+import com.CS353.cs353project.param.evt.Message.OperateCancelOperationMsgEvt;
 import com.CS353.cs353project.param.evt.Message.SendOffShelveReasonEvt;
 import com.CS353.cs353project.param.evt.Trade.*;
 import com.CS353.cs353project.param.evt.Trade.Order.*;
@@ -14,6 +12,7 @@ import com.CS353.cs353project.param.evt.Trade.ShoppingCart.EditShoppingCartEvt;
 import com.CS353.cs353project.param.evt.Trade.ShoppingCart.PlaceCartOrderEvt;
 import com.CS353.cs353project.param.model.Oss.AliyunOssResultModel;
 import com.CS353.cs353project.param.model.Trade.QueryCommoditiesModel;
+import com.CS353.cs353project.param.model.Trade.QueryOrderModel;
 import com.CS353.cs353project.param.out.ServiceHeader;
 import com.CS353.cs353project.param.out.ServiceResp;
 import com.CS353.cs353project.utils.AliyunOSSUtil;
@@ -279,52 +278,25 @@ public class TradeService {
      * 查看订单
      */
     public ServiceResp queryOrder(HttpServletRequest request, QueryOrderEvt evt) {
-        List<Integer> typeList = new ArrayList<>();
-        if (evt.getSortType() != null) {
-            typeList = Arrays.asList(evt.getSortType());
-        }
         String operatorNo = (String) request.getAttribute("userNo");
-        QueryWrapper<OrderBean> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("orderNo,bookNo,bookName,sellerNo,address,consignee,phone,num,price,deTimeFrom,deTimeTo,buyerDisplay,sellerDisplay,orderStatus,createTime,createUser")
-                .eq("status", "E");
-        if (evt.getOperatorRole() == 0) {
-            queryWrapper.eq("buyerNo", operatorNo);
-        } else {
-            queryWrapper.eq("sellerNo", operatorNo);
-        }
-        if (StringUtils.isNotBlank(evt.getBookName())) {
-            queryWrapper.like("bookName", evt.getBookName());
-        }
-        if (StringUtils.isNotBlank(evt.getConsignee())) {
-            queryWrapper.like("consignee", evt.getConsignee());
-        }
-        if (evt.getOrderStatus() != null) {
-            queryWrapper.eq("orderStatus", evt.getOrderStatus());
-        }
-        if (evt.getSortType() != null) {
-            if (typeList.contains(0)) {//时间（最新在前）
-                queryWrapper.orderByDesc("createTime");
-            }
-            if (typeList.contains(1)) {//时间（最旧在前）
-                queryWrapper.orderByAsc("createTime");
-            }
-            if (typeList.contains(2)) {//金额（最多在前）
-                queryWrapper.orderByDesc("price");
-            }
-            if (typeList.contains(3)) {//金额（最少在前）
-                queryWrapper.orderByAsc("price");
-            }
-            if (typeList.contains(4)) {//购买数量（最多在前）
-                queryWrapper.orderByDesc("num");
-            }
-            if (typeList.contains(5)) {//购买数量（最少在前）
-                queryWrapper.orderByAsc("num");
-            }
-        }
-        Page<OrderBean> page = new Page<>(evt.getQueryPage(), evt.getQuerySize());
-        Page<OrderBean> modelPage = orderMapper.selectPage(page, queryWrapper);
+        Page<QueryOrderModel> page = new Page<>(evt.getQueryPage(), evt.getQuerySize());
+        Page<QueryOrderModel> modelPage = orderMapper.queryOrder(evt, operatorNo, page);
         if (modelPage.getRecords() == null) {
             return new ServiceResp().error("can not find relative orders");
+        }
+        DecimalFormat df = new DecimalFormat();
+        df.applyPattern("#,##0.00");
+        for (QueryOrderModel model : page.getRecords()) {
+            BigDecimal decimalPrice = new BigDecimal(model.getPrice());
+            StringBuffer sb1 = new StringBuffer(df.format(decimalPrice));
+            sb1.insert(0, "$");
+            model.setTurePrice(new String(sb1));
+            //只在订单为“申请取消订单”情况下展示申请取消理由，以及申请取消人，否则为‘无’
+            if (!"申请取消".equals(model.getOrderStatus())) {
+                model.setCancelOperatorRole("无");
+                model.setCancelOperator("无");
+                model.setCancelReason("无");
+            }
         }
         return new ServiceResp().success(modelPage);
     }
@@ -481,6 +453,8 @@ public class TradeService {
         BeanUtils.copyProperties(evt, orderBean);
         orderBean.setBuyerNo(buyerNo);
         orderBean.setStatus("E");
+        orderBean.setBuyerDisplay(0);
+        orderBean.setSellerDisplay(0);
         orderBean.setBookName(commodityInfo.getBookName());
         orderBean.setOrderNo(StringUtils.replace(UUID.randomUUID().toString(), "-", ""));
         orderBean.setOrderStatus(0);
@@ -551,6 +525,8 @@ public class TradeService {
             orderBean.setBookName(shoppingCartInfo.getBookName());
             orderBean.setOrderNo(StringUtils.replace(UUID.randomUUID().toString(), "-", ""));
             orderBean.setOrderStatus(0);
+            orderBean.setSellerDisplay(0);
+            orderBean.setBuyerDisplay(0);
             orderBean.setCreateUser(shoppingCartInfo.getBuyerEmail());
             orderBean.setUpdateUser(shoppingCartInfo.getBuyerEmail());
             int result = orderMapper.insert(orderBean);
@@ -661,13 +637,10 @@ public class TradeService {
         int currentStock = bookInfo.getBookStock();
         int currentSale = bookInfo.getBookSale() + orderInfo.getNum();
         bookInfo.setBookSale(currentSale);
-        int result = commodityMapper.updateById(bookInfo);
-        if (result != 1) {
-            return new ServiceResp().error("increase bookSale failed");
-        }
-        //若此时该商品库存以为0,表示该种类商品已下架(更新user表)
+        //若此时该商品库存以为0,表示该种类商品已下架(更新user表),并将商品status=’D‘
         if (currentStock == 0) {
             UserBean sellerInfo = userMapper.selectById(bookInfo.getSellerNo());
+            bookInfo.setStatus("D");
             if (sellerInfo == null) {
                 return new ServiceResp().error("relative seller record not found");
             }
@@ -677,6 +650,10 @@ public class TradeService {
                 return new ServiceResp().error("reduce ReleaseCommNum failed");
             }
         }
+        int result = commodityMapper.updateById(bookInfo);
+        if (result != 1) {
+            return new ServiceResp().error("increase bookSale or update book off shelve failed");
+        }
         //设置订单状态（已发货）
         orderInfo.setOrderStatus(1);
         int result3 = orderMapper.updateById(orderInfo);
@@ -684,5 +661,91 @@ public class TradeService {
             return new ServiceResp().error("Set order status (shipped) failed");
         }
         return new ServiceResp().success("deliver good successfully");
+    }
+
+    /**
+     * 买家确认收货
+     */
+    public ServiceResp confirmReceipt(HttpServletRequest request, String orderNo) {
+        String buyerNo = (String) request.getAttribute("userNo");
+        OrderBean orderInfo = orderMapper.selectById(orderNo);
+        if (orderInfo == null) {
+            return new ServiceResp().error("book info record not found");
+        }
+        UserBean buyerInfo = userMapper.selectById(buyerNo);
+        if (buyerInfo == null) {
+            return new ServiceResp().error("buyer info record not found");
+        }
+        //更新订单状态
+        orderInfo.setUpdateUser(buyerInfo.getUserEmail());
+        orderInfo.setOrderStatus(2);
+        int result = orderMapper.updateById(orderInfo);
+        if (result != 1) {
+            return new ServiceResp().error("update order status failed");
+        }
+        //更新商家销量
+        UserBean sellerInfo = userMapper.selectById(orderInfo.getSellerNo());
+        sellerInfo.setSoldCommNum(sellerInfo.getSoldCommNum() + 1);
+        int result2 = userMapper.updateById(sellerInfo);
+        if (result2 != 1) {
+            return new ServiceResp().error("update seller SoldCommNum failed");
+        }
+        return new ServiceResp().success("confirm receipt successfully");
+    }
+
+    /**
+     * 卖家处理取消订单申请
+     */
+    public ServiceResp processingCancellationRequest(HttpServletRequest request, ProcessingCancellationRequestEvt evt) {
+        String operator = (String) request.getAttribute("userEmail");
+        OrderBean orderInfo = orderMapper.selectById(evt.getOrderNo());
+        if (orderInfo == null) {
+            return new ServiceResp().error("order information not found");
+        }
+        if (evt.getOperation() == 0) {//进行同意操作
+            orderInfo.setOrderStatus(4);
+        } else {//进行拒绝申请操作
+            orderInfo.setOrderStatus(1);
+        }
+        orderInfo.setUpdateUser(operator);
+        //更新数据
+        int result = orderMapper.updateById(orderInfo);
+        if (result != 0) {
+            return new ServiceResp().error("update order status error");
+        }
+        //发送邮件通知
+        OperateCancelOperationMsgEvt msgEvt=new OperateCancelOperationMsgEvt();
+        msgEvt.setOperation(evt.getOperation());
+        msgEvt.setBookName(orderInfo.getBookName());
+        msgEvt.setOperator(operator);
+        if (evt.getOperation() == 1) {//自定义拒绝取消邮件
+            msgEvt.setReason(evt.getRefuseReason());
+        }
+        messageService.sendCancelOperationMsg(msgEvt);
+        return new ServiceResp().success("update order status successfully");
+    }
+
+    /**
+     * 删除订单记录
+     */
+    public ServiceResp deleteOrderRecord(HttpServletRequest request,DeleteOrderRecordEvt evt){
+        OrderBean orderInfo = orderMapper.selectById(evt.getOrderNo());
+        if (orderInfo == null) {
+            return new ServiceResp().error("order information not found");
+        }
+        //查看用户角色
+        if(evt.getOperatorRole()==0){//买家
+            orderInfo.setBuyerDisplay(1);
+        }else if(evt.getOperatorRole()==1){//卖家
+            orderInfo.setSellerDisplay(1);
+        }else {//管理员
+            orderInfo.setStatus("D");
+        }
+        orderInfo.setUpdateUser((String) request.getAttribute("userNo"));
+        int result = orderMapper.updateById(orderInfo);
+        if (result != 0) {
+            return new ServiceResp().error("update order status error");
+        }
+        return new ServiceResp().success("update order status successfully");
     }
 }

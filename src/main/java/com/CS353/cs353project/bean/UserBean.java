@@ -102,4 +102,7 @@ public class UserBean {
     //用户生日
     @Column(name = "birthday")
     private Date birthday;
+    //用户总登录次数
+    @Column(name = "loginNum", nullable = false)
+    private Integer loginNum;
 }

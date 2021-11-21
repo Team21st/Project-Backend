@@ -42,4 +42,10 @@ public interface UserMapper extends BaseMapper<UserBean> {
     @SelectProvider(type= UserProvider.class,method = "queryMyCommodity")
     Page<QueryMyCommodityModel> queryMyCommodity(@Param("createUser") String createUser, Page<QueryMyCommodityModel> page);
 
+    /**
+     * 查询总登录次数
+     */
+    @Select("SELECT sum(loginNum) FROM t_user")
+    Integer queryTotalLoginNum();
+
 }

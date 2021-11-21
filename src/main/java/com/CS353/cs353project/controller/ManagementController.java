@@ -102,4 +102,21 @@ public class ManagementController {
             return new ServiceResp().error("System error");
         }
     }
+
+    /**
+     * 管理员首页展示
+     */
+    @ResponseBody
+    @ApiOperation(value ="管理员首页展示", notes="")
+    @RequestMapping(value = "/administratorHomepageDisplay", method = RequestMethod.POST)
+    public ServiceResp administratorHomepageDisplay(HttpServletRequest request){
+        try {
+            return managementService.administratorHomepageDisplay(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("administrator Homepage Display function error");
+            return new ServiceResp().error("System error");
+        }
+    }
+
 }

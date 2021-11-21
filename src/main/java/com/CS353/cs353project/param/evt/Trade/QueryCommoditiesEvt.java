@@ -8,6 +8,9 @@ import java.util.List;
 
 @Data
 public class QueryCommoditiesEvt extends QueryEvt {
+    //下架状态(0:已在架上，1：已下架),默认全部
+    @ApiModelProperty(value = "下架状态(0:已在架上，1：已下架)",required = false)
+    private Integer onShelvedStatus;
     //图书编码
     @ApiModelProperty(value = "图书编码",required = false)
     private String bookNo;

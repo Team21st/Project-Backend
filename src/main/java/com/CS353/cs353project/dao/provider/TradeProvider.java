@@ -1,6 +1,7 @@
 package com.CS353.cs353project.dao.provider;
 
 import com.CS353.cs353project.param.evt.Management.QueryAuditRecordsEvt;
+import com.CS353.cs353project.param.evt.Trade.Order.QueryOrderEvt;
 import com.CS353.cs353project.param.evt.Trade.QueryCommoditiesEvt;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.annotations.Param;
@@ -42,6 +43,9 @@ public class TradeProvider {
                         WHERE("auditStatus='2'");
                     }
                 }
+                if (StringUtils.isNotBlank(evt.getAuditor())) {
+                    WHERE("auditor=#{evt.auditor}");
+                }
             }
         };
         return sql.toString();
@@ -64,7 +68,14 @@ public class TradeProvider {
                         "when '9' then '专业知识' end as bookTag,\n" +
                         "bookDesc,bookPrice,bookSale,bookStock,recommend,createTime,newOldDegree");
                 FROM("t_commodity");
-                WHERE("status='E' and auditStatus='1' and bookStock >0");
+                WHERE("auditStatus='1' and bookStock >0");
+                if(evt.getOnShelvedStatus()!=null){
+                    if(evt.getOnShelvedStatus()==0){
+                        WHERE("status='E'");
+                    }else if(evt.getOnShelvedStatus()==1){
+                        WHERE("status='D'");
+                    }
+                }
                 if (StringUtils.isNotBlank(evt.getBookName())) {
                     WHERE("bookName like CONCAT('%',#{evt.bookName},'%')");
                 }
@@ -107,6 +118,69 @@ public class TradeProvider {
                 FROM("t_shoppingCart");
                 WHERE("status='E' and buyerNo=#{buyerNo}");
                 ORDER_BY("sellerNo");
+            }
+        };
+        return sql.toString();
+    }
+
+    /**
+     * 查询订单
+     */
+    public String queryOrder(QueryOrderEvt evt, String operatorNo) {
+        SQL sql = new SQL() {
+            {
+                SELECT(" orderNo,bookNo,bookName,sellerNo,address,consignee,phone,num,price,deTimeFrom,deTimeTo,buyerDisplay,sellerDisplay,createTime,createUser,\n" +
+                        "case orderStatus\n" +
+                        "when 0 then '待发货'\n" +
+                        "when 1 then '已发货'\n" +
+                        "when 2 then '完成'\n" +
+                        "when 3 then '申请取消'\n" +
+                        "when 4 then '已取消'\n" +
+                        "end as orderStatus,\n" +
+                        "case\n" +
+                        "when cancelOperatorRole=0 then '买家'\n" +
+                        "when cancelOperatorRole=1 then '卖家'\n" +
+                        "else '无'\n" +
+                        " end as cancelOperatorRole,\n" +
+                        "case \n" +
+                        "when cancelOperator is null then '无'\n" +
+                        "else cancelOperator \n" +
+                        "end as cancelOperator,\n" +
+                        "case \n" +
+                        "when cancelReason is null then '无'\n" +
+                        "else cancelReason\n" +
+                        "end as cancelReason");
+                FROM("t_order");
+                WHERE("status='E'");
+                if(evt.getOperatorRole()!=null){
+                    if (evt.getOperatorRole() == 0) {//以买家身份查看
+                        WHERE("buyerNo=#{operatorNo}");
+                        WHERE("buyerDisplay=0");
+                    } else if(evt.getOperatorRole() == 1){//以卖家身份查看
+                        WHERE("sellerNo=#{operatorNo}");
+                        WHERE("sellerDisplay=0");
+                    }
+                }
+                if (evt.getSortType() != null) {
+                    if (evt.getSortType().contains(0)) {//时间（最新在前）
+                        ORDER_BY("createTime desc");
+                    }
+                    if (evt.getSortType().contains(1)) {//时间（最旧在前）
+                        ORDER_BY("createTime");
+                    }
+                    if (evt.getSortType().contains(2)) {//金额（最多在前）
+                        ORDER_BY("price desc");
+                    }
+                    if (evt.getSortType().contains(3)) {//金额（最少在前）
+                        ORDER_BY("price");
+                    }
+                    if (evt.getSortType().contains(4)) {//购买数量（最多在前）
+                        ORDER_BY("num desc");
+                    }
+                    if (evt.getSortType().contains(5)) {//购买数量（最少在前）
+                        ORDER_BY("num");
+                    }
+                }
             }
         };
         return sql.toString();

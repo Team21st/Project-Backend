@@ -70,6 +70,7 @@ public class UserService {
         addBean.setSoldCommNum(0);
         addBean.setCreateUser(evt.getUserEmail());
         addBean.setUpdateUser(evt.getUserEmail());
+        addBean.setLoginNum(0);
         int info = userMapper.insert(addBean);
         if (info == 1) {
             logger.info(String.format("User %s registration success", evt.getUserEmail()));
@@ -113,6 +114,7 @@ public class UserService {
         String token = JwtUtils.createToken(userBean);
         //更新用户最后一次登录时间
         userBean.setLastLoginTime(new Date());
+        userBean.setLoginNum(userBean.getLoginNum()+1);
         int info = userMapper.updateById(userBean);
         if (info != 1) {
             logger.error(String.format("User %s failed to update the last login time", evt.getUserEmail()));

@@ -55,11 +55,11 @@ public class OrderBean {
     //送达时间To
     @Column(name = "deTimeTo")
     private Date deTimeTo;
-    //买家展示(0 展示, 1不展示 )
-    @Column(name = "buyerDisplay")
+    //买家展示(0 展示, 1不展示)
+    @Column(name = "buyerDisplay", nullable = false)
     private Integer buyerDisplay;
     //卖家展示(0 展示, 1不展示 )
-    @Column(name = "sellerDisplay")
+    @Column(name = "sellerDisplay", nullable = false)
     private Integer sellerDisplay;
     //订单状态(0 待发货(未发货),1 待收货(已发货),2 完成,3 申请取消,4 订单取消)
     @Column(name = "orderStatus", nullable = false)
