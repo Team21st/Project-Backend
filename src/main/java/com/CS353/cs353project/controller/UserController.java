@@ -41,7 +41,7 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("User registration function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -57,7 +57,7 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("judge User Name function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -73,7 +73,7 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("User login function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -88,7 +88,7 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("Password modification function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -104,7 +104,7 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("forget user password function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -120,7 +120,7 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("upload head portrait function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -136,7 +136,7 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("query user privateInfo function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -152,25 +152,10 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("update user privateInfo function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
-    /**
-     * 查询我的上架商品记录（包括所有审核状态）
-     */
-    @ResponseBody
-    @ApiOperation(value = "查询我的上架商品记录（包括所有审核状态）", notes = "")
-    @RequestMapping(value = "/queryMyCommodity", method = RequestMethod.POST)
-    public ServiceResp queryMyCommodity(HttpServletRequest request, @RequestBody QueryEvt evt)  {
-        try {
-            return userService.queryMyCommodity(request,evt);
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("query my commodity function error");
-            return new ServiceResp().error("System error");
-        }
-    }
 
     /**
      * 用户申请认证
@@ -184,7 +169,7 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("apply For Certification function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 }

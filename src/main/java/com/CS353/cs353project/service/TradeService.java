@@ -4,6 +4,7 @@ import com.CS353.cs353project.bean.*;
 import com.CS353.cs353project.dao.mapper.Trade.*;
 import com.CS353.cs353project.dao.mapper.UserMapper;
 import com.CS353.cs353project.param.evt.Message.OperateCancelOperationMsgEvt;
+import com.CS353.cs353project.param.evt.Message.SendCancelOrderMsgEvt;
 import com.CS353.cs353project.param.evt.Message.SendOffShelveReasonEvt;
 import com.CS353.cs353project.param.evt.Trade.*;
 import com.CS353.cs353project.param.evt.Trade.Order.*;
@@ -77,6 +78,9 @@ public class TradeService {
         //上传图书实物图，不允许用户不传图片
         int count = 1;
         List<String> insertPicResult = new ArrayList<>();
+        if(files==null){
+            return new ServiceResp().error("you must upload book picture");
+        }
         for (MultipartFile file : files) {
             String ossUrl = "SHBM/OnShelveBook/" + userEmail + "/" + evt.getBookName() + "_" + count;
             AliyunOssResultModel resultModel = AliyunOSSUtil.uploadFile(file, ossUrl);
@@ -213,18 +217,20 @@ public class TradeService {
             queryWrapper.eq("status", "E");
             List<CommPicBean> picUrlList = commPicMapper.selectList(queryWrapper);
             if (picUrlList != null) {
+                List<String> picUrlBackList=new ArrayList<>();
                 for (int i = 1; i < picUrlList.size() + 1; i++) {
                     String bookUrlName = "bookPicUrl";
                     bookUrlName += i;
                     if (bookUrlName.equals("bookPicUrl1")) {
-                        model.setBookPicUrl1(picUrlList.get(i).getPictureUrl());
+                        picUrlBackList.add(picUrlList.get(i-1).getPictureUrl());
                     } else if (bookUrlName.equals("bookPicUrl2")) {
-                        model.setBookPicUrl2(picUrlList.get(i).getPictureUrl());
+                        picUrlBackList.add(picUrlList.get(i-1).getPictureUrl());
                     } else if (bookUrlName.equals("bookPicUrl3")) {
-                        model.setBookPicUrl3(picUrlList.get(i).getPictureUrl());
-                    } else {
-                        model.setBookPicUrl4(picUrlList.get(i).getPictureUrl());
+                        picUrlBackList.add(picUrlList.get(i-1).getPictureUrl());
+                    } else if (bookUrlName.equals("bookPicUrl4")){
+                        picUrlBackList.add(picUrlList.get(i-1).getPictureUrl());
                     }
+                    model.setPicUrlBackList(picUrlBackList);
                 }
             }
         }
@@ -242,7 +248,10 @@ public class TradeService {
         QueryWrapper<UserBean> queryWrapper = new QueryWrapper<>();
         queryWrapper.select("userNo,userName,userEmail,userInfo,releaseCommNum,soldCommNum,createTime,profileUrl")
                 .eq("status", "E")
+                .gt("releaseCommNum",0)
                 .eq("authentication", 2);
+        //8.00
+        //string $8.00
         if (StringUtils.isNotBlank(evt.getSellerName())) {
             queryWrapper.like("userName", evt.getSellerName());
         }
@@ -279,14 +288,18 @@ public class TradeService {
      */
     public ServiceResp queryOrder(HttpServletRequest request, QueryOrderEvt evt) {
         String operatorNo = (String) request.getAttribute("userNo");
+        evt.setOperatorNo(operatorNo);
         Page<QueryOrderModel> page = new Page<>(evt.getQueryPage(), evt.getQuerySize());
-        Page<QueryOrderModel> modelPage = orderMapper.queryOrder(evt, operatorNo, page);
+        Page<QueryOrderModel> modelPage = orderMapper.queryOrder(evt,page);
         if (modelPage.getRecords() == null) {
             return new ServiceResp().error("can not find relative orders");
         }
         DecimalFormat df = new DecimalFormat();
         df.applyPattern("#,##0.00");
         for (QueryOrderModel model : page.getRecords()) {
+            if(model.getPrice()==null){//$9.00 <=9.00
+                model.setPrice(0.0);
+            }
             BigDecimal decimalPrice = new BigDecimal(model.getPrice());
             StringBuffer sb1 = new StringBuffer(df.format(decimalPrice));
             sb1.insert(0, "$");
@@ -315,9 +328,15 @@ public class TradeService {
         if (commodityInfo == null) {
             return new ServiceResp().error("commodity doesn't exist");
         }
-        CommPicBean commPicInfo = commPicMapper.selectById(commodityInfo.getBookNo());
-        if (commPicInfo == null) {
+        QueryWrapper<CommPicBean> queryWrapper1= new QueryWrapper<>();
+        queryWrapper1.eq("bookNo",commodityInfo.getBookNo()).eq("status","E");
+        List<CommPicBean> picUrlList = commPicMapper.selectList(queryWrapper1);
+        if (picUrlList == null) {
             return new ServiceResp().error("commodity picture record doesn't exist");
+        }
+        //若购买数量超过库存
+        if(evt.getNum()>commodityInfo.getBookStock()){
+            return new ServiceResp().error("the commodity is out of the purchase limit");
         }
         //加入t_shoppingCart表
         ShoppingCartBean shoppingCartBean = new ShoppingCartBean();
@@ -330,22 +349,18 @@ public class TradeService {
         shoppingCartBean.setSellerNo(commodityInfo.getSellerNo());
         shoppingCartBean.setBookPrice(commodityInfo.getBookPrice());
         //存入商品图片
-        QueryWrapper<CommPicBean> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("bookNo", commodityInfo.getBookNo());
-        queryWrapper.eq("status", "E");
-        List<CommPicBean> picUrlList = commPicMapper.selectList(queryWrapper);
         if (picUrlList != null) {
             for (int i = 1; i < picUrlList.size() + 1; i++) {
                 String bookUrlName = "bookPicUrl";
-                bookUrlName += i;
+                bookUrlName +=i;
                 if (bookUrlName.equals("bookPicUrl1")) {
-                    shoppingCartBean.setBookPicUrl1(picUrlList.get(i).getPictureUrl());
+                    shoppingCartBean.setBookPicUrl1(picUrlList.get(i-1).getPictureUrl());
                 } else if (bookUrlName.equals("bookPicUrl2")) {
-                    shoppingCartBean.setBookPicUrl2(picUrlList.get(i).getPictureUrl());
+                    shoppingCartBean.setBookPicUrl2(picUrlList.get(i-1).getPictureUrl());
                 } else if (bookUrlName.equals("bookPicUrl3")) {
-                    shoppingCartBean.setBookPicUrl3(picUrlList.get(i).getPictureUrl());
+                    shoppingCartBean.setBookPicUrl3(picUrlList.get(i-1).getPictureUrl());
                 } else {
-                    shoppingCartBean.setBookPicUrl4(picUrlList.get(i).getPictureUrl());
+                    shoppingCartBean.setBookPicUrl4(picUrlList.get(i-1).getPictureUrl());
                 }
             }
         }
@@ -355,9 +370,7 @@ public class TradeService {
         shoppingCartBean.setNum(evt.getNum());
         shoppingCartBean.setUpdateUser(buyerEmail);
         shoppingCartBean.setCreateUser(buyerEmail);
-
         int result = shoppingCartMapper.insert(shoppingCartBean);
-
         if (result != 1) {
             return new ServiceResp().error("add to shopping cart error");
         } else return new ServiceResp().success("add to shopping cart successfully");
@@ -567,6 +580,7 @@ public class TradeService {
     public ServiceResp cancelOrder(HttpServletRequest request, CancelOrderEvt evt) {
         String operatorEmail = (String) request.getAttribute("userEmail");
         String operatorNo = (String) request.getAttribute("userNo");
+        String operatorName = (String) request.getAttribute("userName");
         OrderBean orderInfo = orderMapper.selectById(evt.getOrderNo());
         if (orderInfo == null) {
             return new ServiceResp().error("order record not found");
@@ -574,7 +588,7 @@ public class TradeService {
         //更新数据库订单记录
         orderInfo.setUpdateUser(operatorEmail);
         orderInfo.setCancelOperator(operatorEmail);
-        if (operatorNo.equals(orderInfo.getSellerNo())) {
+        if (evt.getOperatorRole()==1) {
             //角色为商家
             orderInfo.setCancelOperatorRole(1);
             orderInfo.setOrderStatus(4);
@@ -611,11 +625,22 @@ public class TradeService {
         if (result3 != 1) {
             return new ServiceResp().error("updating bookStock failed");
         }
-        if (orderInfo.getCancelOperatorRole() == 0) {
-            //发送邮件...
+        //发送邮件通知
+        SendCancelOrderMsgEvt msgEvt = new SendCancelOrderMsgEvt();
+        msgEvt.setCancelReason(evt.getCancelReason());
+        msgEvt.setBookName(bookInfo.getBookName());
+        msgEvt.setOperatorName(operatorName);
+        if (evt.getOperatorRole()== 0) {//买家取消订单
+            //发送邮件给卖家
+            msgEvt.setOperatorRole(0);
+            msgEvt.setUserEmail(bookInfo.getCreateUser());
+            messageService.sendCancelOrderMsg(msgEvt);
             return new ServiceResp().success("apply cancel order request successfully, please wait patiently for the seller to handle");
         } else {
-            //发送邮件...
+            //发送邮件给买家
+            msgEvt.setOperatorRole(1);
+            msgEvt.setUserEmail(orderInfo.getCreateUser());
+            messageService.sendCancelOrderMsg(msgEvt);
             return new ServiceResp().success("cancel the order successfully");
         }
     }
@@ -643,6 +668,9 @@ public class TradeService {
             bookInfo.setStatus("D");
             if (sellerInfo == null) {
                 return new ServiceResp().error("relative seller record not found");
+            }
+            if(sellerInfo.getReleaseCommNum()==null){
+                sellerInfo.setReleaseCommNum(0);
             }
             sellerInfo.setReleaseCommNum(sellerInfo.getReleaseCommNum() - 1);
             int result2 = userMapper.updateById(sellerInfo);
@@ -694,7 +722,7 @@ public class TradeService {
     }
 
     /**
-     * 卖家处理取消订单申请
+     * 卖家处理"取消订单申请"
      */
     public ServiceResp processingCancellationRequest(HttpServletRequest request, ProcessingCancellationRequestEvt evt) {
         String operator = (String) request.getAttribute("userEmail");
@@ -710,7 +738,7 @@ public class TradeService {
         orderInfo.setUpdateUser(operator);
         //更新数据
         int result = orderMapper.updateById(orderInfo);
-        if (result != 0) {
+        if (result != 1) {
             return new ServiceResp().error("update order status error");
         }
         //发送邮件通知
@@ -718,6 +746,7 @@ public class TradeService {
         msgEvt.setOperation(evt.getOperation());
         msgEvt.setBookName(orderInfo.getBookName());
         msgEvt.setOperator(operator);
+        msgEvt.setUserEmail(orderInfo.getCreateUser());
         if (evt.getOperation() == 1) {//自定义拒绝取消邮件
             msgEvt.setReason(evt.getRefuseReason());
         }

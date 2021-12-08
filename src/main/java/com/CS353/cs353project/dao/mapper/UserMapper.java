@@ -36,11 +36,11 @@ public interface UserMapper extends BaseMapper<UserBean> {
     @Select("select * from t_user where userNo = #{userNo} and status = 'E'")
     UserBean queryUserByNo(@Param("userNo") String userNo);
 
-    /**
-     * 查询上架商品信息（包括所有审核状态）
-     */
-    @SelectProvider(type= UserProvider.class,method = "queryMyCommodity")
-    Page<QueryMyCommodityModel> queryMyCommodity(@Param("createUser") String createUser, Page<QueryMyCommodityModel> page);
+//    /**
+//     * 查询上架商品信息（包括所有审核状态）
+//     */
+//    @SelectProvider(type= UserProvider.class,method = "queryMyCommodity")
+//    Page<QueryMyCommodityModel> queryMyCommodity(@Param("createUser") String createUser, Page<QueryMyCommodityModel> page);
 
     /**
      * 查询总登录次数

@@ -23,4 +23,7 @@ public class QueryCommoditiesEvt extends QueryEvt {
     //商家名称
     @ApiModelProperty(value = "商家名称",required = false)
     private String sellerName;
+    //商家编码(商家查询“我的商品时输入”)
+    @ApiModelProperty(value = "商家编码(商家查询“我的商品时输入”)", required = false)
+    private String sellerNo;
 }

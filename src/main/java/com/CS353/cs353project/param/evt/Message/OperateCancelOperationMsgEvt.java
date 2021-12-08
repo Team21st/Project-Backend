@@ -6,7 +6,7 @@ import lombok.Data;
 public class OperateCancelOperationMsgEvt {
     //用户邮箱
     private String userEmail;
-    //进行的操作（0：同哟，1：拒绝）
+    //进行的操作（0：同意，1：拒绝）
     private Integer operation;
     //拒绝的理由
     private String reason;

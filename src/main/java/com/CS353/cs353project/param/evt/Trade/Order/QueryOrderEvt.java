@@ -18,4 +18,6 @@ public class QueryOrderEvt extends QueryEvt {
     private Integer orderStatus;
     @ApiModelProperty(value = "排序类型（0:时间（最新在前），1时间（最旧在前）：2：price金额（最多在前），3:price金额（最少在前）4：num购买数量（最多在前），5：num 购买数量（最少在前））",required = false)
     private List<Integer> sortType;
+    @ApiModelProperty(value = "操作人员编码（不必传）",required = false)
+    private String operatorNo;
 }

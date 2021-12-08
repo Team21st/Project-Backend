@@ -20,7 +20,7 @@ public interface OrderMapper extends BaseMapper<OrderBean> {
    *查看订单
    */
   @SelectProvider(value = TradeProvider.class,method = "queryOrder")
-  Page<QueryOrderModel> queryOrder(@Param("evt") QueryOrderEvt evt,@Param("operatorNo") String operatorNo,Page<QueryOrderModel> page);
+  Page<QueryOrderModel> queryOrder(@Param("evt") QueryOrderEvt evt, Page<QueryOrderModel> page);
 
   /**
    *查询总销售额

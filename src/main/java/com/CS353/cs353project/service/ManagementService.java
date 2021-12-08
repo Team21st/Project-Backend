@@ -1,5 +1,6 @@
 package com.CS353.cs353project.service;
 
+import com.CS353.cs353project.bean.CommCommentBean;
 import com.CS353.cs353project.bean.CommodityBean;
 import com.CS353.cs353project.bean.OrderBean;
 import com.CS353.cs353project.bean.UserBean;
@@ -7,6 +8,8 @@ import com.CS353.cs353project.dao.mapper.ManagementMapper;
 import com.CS353.cs353project.dao.mapper.Trade.CommodityMapper;
 import com.CS353.cs353project.dao.mapper.Trade.OrderMapper;
 import com.CS353.cs353project.dao.mapper.UserMapper;
+import com.CS353.cs353project.dao.mapper.comment.CommentMapper;
+import com.CS353.cs353project.param.evt.Comment.QueryCommentEvt;
 import com.CS353.cs353project.param.evt.Management.*;
 import com.CS353.cs353project.param.evt.Message.SendAuditFailedMsgEvt;
 import com.CS353.cs353project.param.evt.Message.SendAuthorizeMsgEvt;
@@ -17,6 +20,7 @@ import com.CS353.cs353project.param.model.Management.QueryAuditRecordsModel;
 import com.CS353.cs353project.param.out.ServiceResp;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.criterion.Order;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class ManagementService {
@@ -232,4 +237,5 @@ public class ManagementService {
         finalModel.setTotalBookNum(totalBookNum);//存入总商品数
         return new ServiceResp().success(finalModel);
     }
+
 }

@@ -76,10 +76,10 @@ public class MessageService {
     /**
      * 发送上架信息
      */
-    public void sendOnShelveReason(SendOnShelveMsgEvt evt){
+    public void sendOnShelveReason(SendOnShelveMsgEvt evt) {
         SendEmailModel model = new SendEmailModel();
         model.setEmail(evt.getUserEmail());
-        model.setMsg("you book: "+evt.getBookName()+" has passed authorization just now");
+        model.setMsg("you book: " + evt.getBookName() + " has passed authorization just now");
         //发送邮件
         String json = JSON.toJSONString(model);
         jmsProducer.sendMsg("SHBM.mail.send", json);//????destinationNmae>>???
@@ -87,15 +87,32 @@ public class MessageService {
     }
 
     /**
-     * 发送操作申请取消订单邮件
+     * 发送操作"申请取消订单"邮件
      */
-    public void sendCancelOperationMsg(OperateCancelOperationMsgEvt evt){
+    public void sendCancelOperationMsg(OperateCancelOperationMsgEvt evt) {
         SendEmailModel model = new SendEmailModel();
         model.setEmail(evt.getUserEmail());
         if (evt.getOperation() == 0) {
-            model.setMsg("your request cancel operation about  book: "+evt.getBookName()+" has passed Pass the audit, by the admin: "+evt.getOperator());
-        }else {
-            model.setMsg("your request cancel operation about  book: "+evt.getBookName()+" didn't pass Pass the audit, by the admin: "+evt.getOperator()+" the reason is as follow:\n" + evt.getReason());
+            model.setMsg("your request cancel operation about  book: " + evt.getBookName() + " has passed Pass the audit, by the admin: " + evt.getOperator());
+        } else {
+            model.setMsg("your request cancel operation about  book: " + evt.getBookName() + " didn't pass Pass the audit, by the admin: " + evt.getOperator() + " the reason is as follow:\n" + evt.getReason());
+        }
+        //发送邮件
+        String json = JSON.toJSONString(model);
+        jmsProducer.sendMsg("SHBM.mail.send", json);//????destinationNmae>>???
+        logger.info(String.format("on Shelve msg has been sent to %s", evt.getUserEmail()));
+    }
+
+    /**
+     * 发送买家申请取消订单、卖家临时取消订单的原因信息
+     */
+    public void sendCancelOrderMsg(SendCancelOrderMsgEvt evt) {
+        SendEmailModel model = new SendEmailModel();
+        model.setEmail(evt.getUserEmail());
+        if(evt.getOperatorRole()==0){
+            model.setMsg("you received a cancel order request for book: " + evt.getBookName() + ", send by the buyer: "+evt.getOperatorName()+" the reason is as follow:\n" +evt.getCancelReason());
+        }else{
+            model.setMsg("your order for book" + evt.getBookName() + " had been canceled by the seller: "+evt.getOperatorName()+" the reason is as follow:\n" +evt.getCancelReason());
         }
         //发送邮件
         String json = JSON.toJSONString(model);
@@ -106,10 +123,10 @@ public class MessageService {
     /**
      * 发送封禁、解封用户邮件
      */
-    public void senBanUserMsg(SendBanUserMsgEvt evt){
+    public void senBanUserMsg(SendBanUserMsgEvt evt) {
         SendEmailModel model = new SendEmailModel();
         model.setEmail(evt.getUserEmail());
-        model.setMsg("Dear user, you have been baned by administrator just now, the reason is as showed as below:\n  "+evt.getBanReason());
+        model.setMsg("Dear user, you have been baned by administrator just now, the reason is as showed as below:\n  " + evt.getBanReason());
         //发送邮件
         String json = JSON.toJSONString(model);
         jmsProducer.sendMsg("SHBM.mail.send", json);
@@ -119,13 +136,13 @@ public class MessageService {
     /**
      * 发送用户认证邮件
      */
-    public void sendAuthorizeMsg(SendAuthorizeMsgEvt evt){
+    public void sendAuthorizeMsg(SendAuthorizeMsgEvt evt) {
         SendEmailModel model = new SendEmailModel();
         model.setEmail(evt.getUserEmail());
-        if(evt.getAuthorizeStatus()==1){
+        if (evt.getAuthorizeStatus() == 1) {
             model.setMsg("you have passed the authentication just now, try to on shelve a book!");
-        }else {
-            model.setMsg("Dear user, your user authentication request has been rejected, the reason is as showed as below:\n  "+evt.getReason());
+        } else {
+            model.setMsg("Dear user, your user authentication request has been rejected, the reason is as showed as below:\n  " + evt.getReason());
         }
         //发送邮件
         String json = JSON.toJSONString(model);
@@ -136,10 +153,10 @@ public class MessageService {
     /**
      * 发送审核不通过原因邮件
      */
-    public void sendAuditFailedMsg(SendAuditFailedMsgEvt evt){
+    public void sendAuditFailedMsg(SendAuditFailedMsgEvt evt) {
         SendEmailModel model = new SendEmailModel();
         model.setEmail(evt.getUserEmail());
-        model.setMsg("Dear user, Your request for approval of your product: "+evt.getCommodityName()+" has been rejected please audit book's description, the reason is as showed as below:\n  "+evt.getReason());
+        model.setMsg("Dear user, Your request for approval of your product: " + evt.getCommodityName() + " has been rejected please audit book's description, the reason is as showed as below:\n  " + evt.getReason());
         //发送邮件
         String json = JSON.toJSONString(model);
         jmsProducer.sendMsg("SHBM.mail.send", json);

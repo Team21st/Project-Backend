@@ -37,13 +37,13 @@ public class TradeController {
     @ResponseBody
     @ApiOperation(value = "上架图书接口", notes = "")
     @RequestMapping(value = "/bookOnShelve", method = RequestMethod.POST)
-    public ServiceResp bookOnShelve(HttpServletRequest request, MultipartFile[] file, BookOnShelveEvt evt) {
+    public ServiceResp bookOnShelve(HttpServletRequest request, BookOnShelveEvt evt) {
         try {
-            return tradeService.bookOnShelve(request, file, evt);
+            return tradeService.bookOnShelve(request, evt.getFile(), evt);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("Book On Shelve function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.toString());
         }
     }
 
@@ -59,7 +59,7 @@ public class TradeController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("edit book 0n shelve function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -76,7 +76,7 @@ public class TradeController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("delete book 0n shelve function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -93,7 +93,7 @@ public class TradeController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("query commodities function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -110,7 +110,7 @@ public class TradeController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("query business function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -126,7 +126,7 @@ public class TradeController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("place Order function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -137,13 +137,13 @@ public class TradeController {
     @ResponseBody
     @ApiOperation(value = "查看订单", notes = "")
     @RequestMapping(value = "/queryOrder", method = RequestMethod.POST)
-    public ServiceResp buyerQueryOrder(HttpServletRequest request, @RequestBody QueryOrderEvt evt) {
+    public ServiceResp queryOrder(HttpServletRequest request, @RequestBody QueryOrderEvt evt) {
         try {
             return tradeService.queryOrder(request, evt);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("query Order List function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -160,7 +160,7 @@ public class TradeController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("add shopping cart function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -176,7 +176,7 @@ public class TradeController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("query shopping cart function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -192,7 +192,7 @@ public class TradeController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("edit shopping cart function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -208,7 +208,7 @@ public class TradeController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("palace cart order function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -224,7 +224,7 @@ public class TradeController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("cancel order function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -240,7 +240,7 @@ public class TradeController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("deliver good function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -256,15 +256,15 @@ public class TradeController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("confirm receipt function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
     /**
-     * 卖家处理取消订单申请
+     * 卖家处理"取消订单申请"
      */
     @ResponseBody
-    @ApiOperation(value = "卖家处理取消订单申请", notes = "")
+    @ApiOperation(value = "卖家处理\"取消订单申请\"", notes = "")
     @RequestMapping(value = "/processingCancellationRequest", method = RequestMethod.POST)
     public ServiceResp processingCancellationRequest(HttpServletRequest request,@RequestBody ProcessingCancellationRequestEvt evt) {
         try {
@@ -272,7 +272,7 @@ public class TradeController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("processing Cancellation Request function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -288,7 +288,7 @@ public class TradeController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("delete Order Record function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 }

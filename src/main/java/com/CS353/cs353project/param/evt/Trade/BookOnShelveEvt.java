@@ -2,6 +2,7 @@ package com.CS353.cs353project.param.evt.Trade;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 
@@ -34,5 +35,7 @@ public class BookOnShelveEvt {
     //自定义标签
     @ApiModelProperty(value = "自定义标签", required = false)
     private String customTags;
+    @ApiModelProperty(value = "认证图片（至少一张最多四张", required = true)
+    MultipartFile[] file;
 
 }

@@ -5,6 +5,7 @@ import lombok.Data;
 
 import javax.persistence.Column;
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class QueryCommoditiesModel {
@@ -13,7 +14,7 @@ public class QueryCommoditiesModel {
     //图书名称
     private String bookName;
     //商家名称
-    private String userName;
+    private String sellerName;
     //商家用户编码
     private String sellerNo;
     //图书标签(0 文学,1 随笔,2 历史,3 科幻,4 奇幻,5 悬疑,6 推理,7 哲学,8 工具,9 专业知识)
@@ -36,13 +37,7 @@ public class QueryCommoditiesModel {
     private Integer newOldDegree;
     //进行处理过的价格
     private String truePrice;
-    //图书实物图地址1
-    private String bookPicUrl1;
-    //图书实物图地址2
-    private String bookPicUrl2;
-    //图书实物图地址3
-    private String bookPicUrl3;
-    //图书实物图地址4
-    private String bookPicUrl4;
+    //图书实物图地址List
+    private List<String> picUrlBackList;
 
 }

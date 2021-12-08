@@ -22,9 +22,9 @@ public class CommCommentBean {
     @TableId("commentNo")
     @Column(name = "commentNo", length = 32, nullable = false)
     private String commentNo;
-    //商品编码
-    @Column(name = "commNo", length = 32, nullable = false)
-    private String commNo;
+    //图书
+    @Column(name = "bookNo", length = 32, nullable = false)
+    private String bookNo;
     //内容(限制长度80)
     @Column(name = "content", length = 256, nullable = false)
     private String content;
@@ -48,6 +48,4 @@ public class CommCommentBean {
     //更新人员
     @Column(name = "updateUser", length = 128)
     private String updateUser;
-
-
 }

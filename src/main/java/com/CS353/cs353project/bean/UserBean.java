@@ -44,7 +44,7 @@ public class UserBean {
     @Column(name = "userRealName", length = 128)
     private String userRealName;
     //头像地址
-    @Column(name = "profileUrl", length = 128)
+    @Column(name = "profileUrl", length = 256)
     private String profileUrl;
     //不合格商品数
     @Column(name = "unquaComm", nullable = false)

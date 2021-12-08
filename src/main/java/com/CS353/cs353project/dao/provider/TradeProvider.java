@@ -76,6 +76,9 @@ public class TradeProvider {
                         WHERE("status='D'");
                     }
                 }
+                if (StringUtils.isNotBlank(evt.getSellerNo())) {
+                    WHERE("sellerNo =#{evt.sellerNo}");
+                }
                 if (StringUtils.isNotBlank(evt.getBookName())) {
                     WHERE("bookName like CONCAT('%',#{evt.bookName},'%')");
                 }
@@ -126,7 +129,7 @@ public class TradeProvider {
     /**
      * 查询订单
      */
-    public String queryOrder(QueryOrderEvt evt, String operatorNo) {
+    public String queryOrder(QueryOrderEvt evt) {
         SQL sql = new SQL() {
             {
                 SELECT(" orderNo,bookNo,bookName,sellerNo,address,consignee,phone,num,price,deTimeFrom,deTimeTo,buyerDisplay,sellerDisplay,createTime,createUser,\n" +
@@ -154,11 +157,24 @@ public class TradeProvider {
                 WHERE("status='E'");
                 if(evt.getOperatorRole()!=null){
                     if (evt.getOperatorRole() == 0) {//以买家身份查看
-                        WHERE("buyerNo=#{operatorNo}");
+                        WHERE("buyerNo=#{evt.operatorNo}");
                         WHERE("buyerDisplay=0");
                     } else if(evt.getOperatorRole() == 1){//以卖家身份查看
-                        WHERE("sellerNo=#{operatorNo}");
+                        WHERE("sellerNo=#{evt.operatorNo}");
                         WHERE("sellerDisplay=0");
+                    }
+                }
+                if(evt.getOrderStatus()!=null){
+                    if(evt.getOrderStatus()==0){
+                        WHERE("orderStatus=0");
+                    }else if(evt.getOrderStatus()==1) {
+                        WHERE("orderStatus=1");
+                    }else if(evt.getOrderStatus()==2){
+                        WHERE("orderStatus=2");
+                    }else if(evt.getOrderStatus()==3){
+                        WHERE("orderStatus=3");
+                    }else if(evt.getOrderStatus()==4){
+                        WHERE("orderStatus=4");
                     }
                 }
                 if (evt.getSortType() != null) {

@@ -35,7 +35,7 @@ public class ManagementController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("query audit records function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -51,7 +51,7 @@ public class ManagementController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("query All Users records function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -67,7 +67,7 @@ public class ManagementController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("ban  user function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -83,7 +83,7 @@ public class ManagementController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("authorize  user function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -99,7 +99,7 @@ public class ManagementController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("audit  books function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 
@@ -115,7 +115,7 @@ public class ManagementController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("administrator Homepage Display function error");
-            return new ServiceResp().error("System error");
+            return new ServiceResp().error(e.getMessage());
         }
     }
 

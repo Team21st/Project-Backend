@@ -12,7 +12,6 @@ import com.CS353.cs353project.utils.AliyunOSSUtil;
 import com.CS353.cs353project.utils.JwtUtils;
 import com.CS353.cs353project.utils.Md5Util;
 import com.CS353.cs353project.utils.VerifyCodeUtils;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -229,27 +228,27 @@ public class UserService {
         return new ServiceResp().success("update user private information success");
     }
 
-    /**
-     * 查询上架商品记录（包括所有审核状态）
-     */
-    public ServiceResp queryMyCommodity(HttpServletRequest request, QueryEvt evt) {
-        Page<QueryMyCommodityModel> page = new Page<>(evt.getQueryPage(), evt.getQuerySize());
-        Page<QueryMyCommodityModel> modelPage = userMapper.queryMyCommodity((String) request.getAttribute("userEmail"), page);
-        if (modelPage == null) {
-            return new ServiceResp().error("no records");
-        }
-
-        //拼接成价格格式
-        DecimalFormat df = new DecimalFormat();
-        df.applyPattern("#,##0.00");
-        for (QueryMyCommodityModel model : page.getRecords()) {
-            BigDecimal decimalPrice = new BigDecimal(model.getBookPrice());
-            StringBuffer sb1 = new StringBuffer(df.format(decimalPrice));
-            sb1.insert(0, "$");
-            model.setTruePrice(new String(sb1));
-        }
-        return new ServiceResp().success(modelPage);
-    }
+//    /**
+//     * 查询上架商品记录（包括所有审核状态）
+//     */
+//    public ServiceResp queryMyCommodity(HttpServletRequest request, QueryEvt evt) {
+//        Page<QueryMyCommodityModel> page = new Page<>(evt.getQueryPage(), evt.getQuerySize());
+//        Page<QueryMyCommodityModel> modelPage = userMapper.queryMyCommodity((String) request.getAttribute("userEmail"), page);
+//        if (modelPage == null) {
+//            return new ServiceResp().error("no records");
+//        }
+//
+//        //拼接成价格格式
+//        DecimalFormat df = new DecimalFormat();
+//        df.applyPattern("#,##0.00");
+//        for (QueryMyCommodityModel model : page.getRecords()) {
+//            BigDecimal decimalPrice = new BigDecimal(model.getBookPrice());
+//            StringBuffer sb1 = new StringBuffer(df.format(decimalPrice));
+//            sb1.insert(0, "$");
+//            model.setTruePrice(new String(sb1));
+//        }
+//        return new ServiceResp().success(modelPage);
+//    }
 
     /**
      * 用户申请认证
