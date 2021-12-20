@@ -5,7 +5,6 @@ Inorder to run the backend project that I submitted. Please read the text below:
 ### jar
 you will find a jar called: "CS353project-0.0.1-SNAPSHOT.jar" under the "target" file.
 
-I have copy a jar in the index, you could use it to run the jar 
 
 ### environment 
 
