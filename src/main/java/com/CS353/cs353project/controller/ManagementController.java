@@ -29,9 +29,9 @@ public class ManagementController {
     @ResponseBody
     @ApiOperation(value = "查询审核记录接口", notes = "")
     @RequestMapping(value = "/queryAuditRecords", method = RequestMethod.POST)
-    public ServiceResp queryAuditRecords(HttpServletRequest request, @RequestBody QueryAuditRecordsEvt evt) throws Exception {
+    public ServiceResp queryAuditRecords(@RequestBody QueryAuditRecordsEvt evt) throws Exception {
         try {
-            return managementService.queryAuditRecords(request, evt);
+            return managementService.queryAuditRecords(evt);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("query audit records function error");

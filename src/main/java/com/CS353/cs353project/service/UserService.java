@@ -219,7 +219,7 @@ public class UserService {
         if (userInfo == null) {
             return new ServiceResp().error("can't find personal information");
         }
-        BeanUtils.copyProperties(userInfo, evt);
+        BeanUtils.copyProperties(evt, userInfo);
         userInfo.setUpdateUser((String) request.getAttribute("userEmail"));
         int result = userMapper.updateById(userInfo);
         if (result != 1) {

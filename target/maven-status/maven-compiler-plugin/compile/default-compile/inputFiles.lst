@@ -73,6 +73,7 @@ D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\C
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\service\MessageService.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\bean\AdvertBean.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Management\QueryAuditRecordsEvt.java
+D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\model\Trade\QueryShoppingCartModel.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\utils\JwtUtils.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\param\evt\Trade\Order\CancelOrderEvt.java
 D:\CSSE\202101\CS353团队项目\材料\code\Project-Backend\src\main\java\com\CS353\cs353project\utils\JudgeLegalFile.java

@@ -73,7 +73,7 @@ public class CommentService {
         if(model==null){
             return new ServiceResp().error("query comment error");
         }
-        return new ServiceResp().success("query comment successfully");
+        return new ServiceResp().success(model);
     }
 
 

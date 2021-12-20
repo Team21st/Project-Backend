@@ -51,6 +51,9 @@ public class TradeProvider {
         return sql.toString();
     }
 
+    /**
+     * 查询商品
+     */
     public String queryCommodities(@Param("evt") QueryCommoditiesEvt evt) {
         SQL sql = new SQL() {
             {
@@ -75,6 +78,9 @@ public class TradeProvider {
                     }else if(evt.getOnShelvedStatus()==1){
                         WHERE("status='D'");
                     }
+                }
+                if(StringUtils.isNotBlank(evt.getBookNo())){
+                    WHERE("bookNo=#{evt.bookNo}");
                 }
                 if (StringUtils.isNotBlank(evt.getSellerNo())) {
                     WHERE("sellerNo =#{evt.sellerNo}");
@@ -105,7 +111,6 @@ public class TradeProvider {
                         ORDER_BY("bookSale");
                     }
                 }
-
             }
         };
         return sql.toString();

@@ -1,10 +1,8 @@
 package com.CS353.cs353project.service;
 
-import com.CS353.cs353project.bean.CommCommentBean;
-import com.CS353.cs353project.bean.CommodityBean;
-import com.CS353.cs353project.bean.OrderBean;
-import com.CS353.cs353project.bean.UserBean;
+import com.CS353.cs353project.bean.*;
 import com.CS353.cs353project.dao.mapper.ManagementMapper;
+import com.CS353.cs353project.dao.mapper.Trade.CommPicMapper;
 import com.CS353.cs353project.dao.mapper.Trade.CommodityMapper;
 import com.CS353.cs353project.dao.mapper.Trade.OrderMapper;
 import com.CS353.cs353project.dao.mapper.UserMapper;
@@ -31,6 +29,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -48,21 +47,34 @@ public class ManagementService {
     private MessageService messageService;
     @Autowired
     private OrderMapper orderMapper;
+    @Autowired
+    private CommPicMapper commPicMapper;
 
     /**
      * 查询审核记录接口
      */
-    public ServiceResp queryAuditRecords(HttpServletRequest request, QueryAuditRecordsEvt evt) {
+    public ServiceResp queryAuditRecords(QueryAuditRecordsEvt evt) {
         Page<QueryAuditRecordsModel> page = new Page<>(evt.getQueryPage(), evt.getQuerySize());
         Page<QueryAuditRecordsModel> modelPage = commodityMapper.queryAuditRecords(evt, page);
         if (modelPage.getRecords() == null) {
             return new ServiceResp().error("no records");
         }
 
-        //拼接成价格格式
+        //拼接成价格格式,且插入bookPicUrl
+
         DecimalFormat df = new DecimalFormat();
         df.applyPattern("#,##0.00");
         for (QueryAuditRecordsModel model : page.getRecords()) {
+            //查询对应书本的审核图片
+            QueryWrapper<CommPicBean> queryWrapper =new QueryWrapper<>();
+            queryWrapper.eq("status","E");
+            queryWrapper.eq("bookNo",model.getBookNo());
+            List<CommPicBean> commPicBeanList= commPicMapper.selectList(queryWrapper);
+            List<String> picList=new ArrayList<>();
+            for(CommPicBean bean : commPicBeanList){
+                picList.add(bean.getPictureUrl());
+            }
+            model.setPicList(picList);
             BigDecimal decimalPrice = new BigDecimal(model.getBookPrice());
             StringBuffer sb1 = new StringBuffer(df.format(decimalPrice));
             sb1.insert(0, "$");

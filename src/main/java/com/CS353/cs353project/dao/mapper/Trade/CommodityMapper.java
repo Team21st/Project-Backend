@@ -23,7 +23,7 @@ public interface CommodityMapper extends BaseMapper<CommodityBean> {
      *查询审核记录
      */
    @SelectProvider(type = TradeProvider.class, method = "queryAuditRecords")
-   Page<QueryAuditRecordsModel> queryAuditRecords(QueryAuditRecordsEvt evt, Page<QueryAuditRecordsModel> page);
+   Page<QueryAuditRecordsModel> queryAuditRecords(@Param("evt") QueryAuditRecordsEvt evt, Page<QueryAuditRecordsModel> page);
 
     /**
      * 查询指定一单审核记录

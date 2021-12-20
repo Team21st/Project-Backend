@@ -39,5 +39,7 @@ public class QueryCommoditiesModel {
     private String truePrice;
     //图书实物图地址List
     private List<String> picUrlBackList;
+    //卖家头像链接
+    private String sellerPic;
 
 }

@@ -11,9 +11,11 @@ import com.CS353.cs353project.param.evt.Trade.Order.*;
 import com.CS353.cs353project.param.evt.Trade.ShoppingCart.AddShoppingCartEvt;
 import com.CS353.cs353project.param.evt.Trade.ShoppingCart.EditShoppingCartEvt;
 import com.CS353.cs353project.param.evt.Trade.ShoppingCart.PlaceCartOrderEvt;
+import com.CS353.cs353project.param.evt.User.UserRegisterEvt;
 import com.CS353.cs353project.param.model.Oss.AliyunOssResultModel;
 import com.CS353.cs353project.param.model.Trade.QueryCommoditiesModel;
 import com.CS353.cs353project.param.model.Trade.QueryOrderModel;
+import com.CS353.cs353project.param.model.Trade.QueryShoppingCartModel;
 import com.CS353.cs353project.param.out.ServiceHeader;
 import com.CS353.cs353project.param.out.ServiceResp;
 import com.CS353.cs353project.utils.AliyunOSSUtil;
@@ -78,7 +80,7 @@ public class TradeService {
         //上传图书实物图，不允许用户不传图片
         int count = 1;
         List<String> insertPicResult = new ArrayList<>();
-        if(files==null){
+        if (files == null) {
             return new ServiceResp().error("you must upload book picture");
         }
         for (MultipartFile file : files) {
@@ -201,11 +203,16 @@ public class TradeService {
         if (modelPage.getRecords() == null) {
             return new ServiceResp().error("can not find relative books");
         }
-
         //拼接成价格格式，并且存入商品图片
         DecimalFormat df = new DecimalFormat();
         df.applyPattern("#,##0.00");
         for (QueryCommoditiesModel model : page.getRecords()) {
+            //查询对应商家信息，并插入对应头像
+            UserBean userBean=userMapper.selectById(model.getSellerNo());
+            if(userBean==null){
+                return  new ServiceResp().error("can not find relative seller, sellerNo: "+model.getSellerNo());
+            }
+            model.setSellerPic(userBean.getProfileUrl());
             //金额格式化
             BigDecimal decimalPrice = new BigDecimal(model.getBookPrice());
             StringBuffer sb1 = new StringBuffer(df.format(decimalPrice));
@@ -217,18 +224,18 @@ public class TradeService {
             queryWrapper.eq("status", "E");
             List<CommPicBean> picUrlList = commPicMapper.selectList(queryWrapper);
             if (picUrlList != null) {
-                List<String> picUrlBackList=new ArrayList<>();
+                List<String> picUrlBackList = new ArrayList<>();
                 for (int i = 1; i < picUrlList.size() + 1; i++) {
                     String bookUrlName = "bookPicUrl";
                     bookUrlName += i;
                     if (bookUrlName.equals("bookPicUrl1")) {
-                        picUrlBackList.add(picUrlList.get(i-1).getPictureUrl());
+                        picUrlBackList.add(picUrlList.get(i - 1).getPictureUrl());
                     } else if (bookUrlName.equals("bookPicUrl2")) {
-                        picUrlBackList.add(picUrlList.get(i-1).getPictureUrl());
+                        picUrlBackList.add(picUrlList.get(i - 1).getPictureUrl());
                     } else if (bookUrlName.equals("bookPicUrl3")) {
-                        picUrlBackList.add(picUrlList.get(i-1).getPictureUrl());
-                    } else if (bookUrlName.equals("bookPicUrl4")){
-                        picUrlBackList.add(picUrlList.get(i-1).getPictureUrl());
+                        picUrlBackList.add(picUrlList.get(i - 1).getPictureUrl());
+                    } else if (bookUrlName.equals("bookPicUrl4")) {
+                        picUrlBackList.add(picUrlList.get(i - 1).getPictureUrl());
                     }
                     model.setPicUrlBackList(picUrlBackList);
                 }
@@ -248,7 +255,7 @@ public class TradeService {
         QueryWrapper<UserBean> queryWrapper = new QueryWrapper<>();
         queryWrapper.select("userNo,userName,userEmail,userInfo,releaseCommNum,soldCommNum,createTime,profileUrl")
                 .eq("status", "E")
-                .gt("releaseCommNum",0)
+                .gt("releaseCommNum", 0)
                 .eq("authentication", 2);
         //8.00
         //string $8.00
@@ -290,14 +297,14 @@ public class TradeService {
         String operatorNo = (String) request.getAttribute("userNo");
         evt.setOperatorNo(operatorNo);
         Page<QueryOrderModel> page = new Page<>(evt.getQueryPage(), evt.getQuerySize());
-        Page<QueryOrderModel> modelPage = orderMapper.queryOrder(evt,page);
+        Page<QueryOrderModel> modelPage = orderMapper.queryOrder(evt, page);
         if (modelPage.getRecords() == null) {
             return new ServiceResp().error("can not find relative orders");
         }
         DecimalFormat df = new DecimalFormat();
         df.applyPattern("#,##0.00");
         for (QueryOrderModel model : page.getRecords()) {
-            if(model.getPrice()==null){//$9.00 <=9.00
+            if (model.getPrice() == null) {//$9.00 <=9.00
                 model.setPrice(0.0);
             }
             BigDecimal decimalPrice = new BigDecimal(model.getPrice());
@@ -328,14 +335,14 @@ public class TradeService {
         if (commodityInfo == null) {
             return new ServiceResp().error("commodity doesn't exist");
         }
-        QueryWrapper<CommPicBean> queryWrapper1= new QueryWrapper<>();
-        queryWrapper1.eq("bookNo",commodityInfo.getBookNo()).eq("status","E");
+        QueryWrapper<CommPicBean> queryWrapper1 = new QueryWrapper<>();
+        queryWrapper1.eq("bookNo", commodityInfo.getBookNo()).eq("status", "E");
         List<CommPicBean> picUrlList = commPicMapper.selectList(queryWrapper1);
         if (picUrlList == null) {
             return new ServiceResp().error("commodity picture record doesn't exist");
         }
         //若购买数量超过库存
-        if(evt.getNum()>commodityInfo.getBookStock()){
+        if (evt.getNum() > commodityInfo.getBookStock()) {
             return new ServiceResp().error("the commodity is out of the purchase limit");
         }
         //加入t_shoppingCart表
@@ -352,22 +359,29 @@ public class TradeService {
         if (picUrlList != null) {
             for (int i = 1; i < picUrlList.size() + 1; i++) {
                 String bookUrlName = "bookPicUrl";
-                bookUrlName +=i;
+                bookUrlName += i;
                 if (bookUrlName.equals("bookPicUrl1")) {
-                    shoppingCartBean.setBookPicUrl1(picUrlList.get(i-1).getPictureUrl());
+                    shoppingCartBean.setBookPicUrl1(picUrlList.get(i - 1).getPictureUrl());
                 } else if (bookUrlName.equals("bookPicUrl2")) {
-                    shoppingCartBean.setBookPicUrl2(picUrlList.get(i-1).getPictureUrl());
+                    shoppingCartBean.setBookPicUrl2(picUrlList.get(i - 1).getPictureUrl());
                 } else if (bookUrlName.equals("bookPicUrl3")) {
-                    shoppingCartBean.setBookPicUrl3(picUrlList.get(i-1).getPictureUrl());
+                    shoppingCartBean.setBookPicUrl3(picUrlList.get(i - 1).getPictureUrl());
                 } else {
-                    shoppingCartBean.setBookPicUrl4(picUrlList.get(i-1).getPictureUrl());
+                    shoppingCartBean.setBookPicUrl4(picUrlList.get(i - 1).getPictureUrl());
                 }
             }
+        }
+        //先判断购物车中是否有同一本书，若有则num++
+        QueryWrapper<ShoppingCartBean> queryWrapper=new QueryWrapper<>();
+        queryWrapper.eq("bookNo",evt.getBookNo());
+        queryWrapper.eq("status","E");
+        ShoppingCartBean bean =shoppingCartMapper.selectOne(queryWrapper);
+        if(queryWrapper!=null){
+            shoppingCartBean.setNum(evt.getNum()+1);
         }
         shoppingCartBean.setBookTag(commodityInfo.getBookTag());
         shoppingCartBean.setNewOldDegree(commodityInfo.getNewOldDegree());
         shoppingCartBean.setStatus("E");
-        shoppingCartBean.setNum(evt.getNum());
         shoppingCartBean.setUpdateUser(buyerEmail);
         shoppingCartBean.setCreateUser(buyerEmail);
         int result = shoppingCartMapper.insert(shoppingCartBean);
@@ -390,21 +404,33 @@ public class TradeService {
         if (returnModel == null) {
             return new ServiceResp().error("can not find relative shopping cart list");
         }
+        QueryShoppingCartModel queryShoppingCartModel=new QueryShoppingCartModel();
+        Double totalPrice=0.0;//计算所有商品总价
         Map<String, List<ShoppingCartBean>> shoppingCartMap = new HashMap<>();
         String sellerName = "";
         List<ShoppingCartBean> list = new ArrayList<>();
         for (ShoppingCartBean bean : returnModel) {
+            //计算并加入总价
+            totalPrice+=bean.getBookPrice()*bean.getNum();
             if (StringUtils.isBlank(sellerName)) {
                 sellerName = bean.getSellerName();
             }
             if (!sellerName.equals(bean.getSellerName())) {//若商家不同
                 sellerName = bean.getSellerName();
-                list = new ArrayList<>();//清空list
+                list = new ArrayList<>();//指向新list
             }
             list.add(bean);
             shoppingCartMap.put(sellerName, list);
         }
-        return new ServiceResp().success(shoppingCartMap);
+        //拼接成字符格式
+        DecimalFormat df = new DecimalFormat();
+        df.applyPattern("#,##0.00");
+        BigDecimal decimalPrice = new BigDecimal(totalPrice);
+        StringBuffer sb1 = new StringBuffer(df.format(decimalPrice));
+        sb1.insert(0, "$");
+        queryShoppingCartModel.setSum(new String(sb1));
+        queryShoppingCartModel.setCartList(shoppingCartMap);
+        return new ServiceResp().success(queryShoppingCartModel);
     }
 
     /**
@@ -588,7 +614,7 @@ public class TradeService {
         //更新数据库订单记录
         orderInfo.setUpdateUser(operatorEmail);
         orderInfo.setCancelOperator(operatorEmail);
-        if (evt.getOperatorRole()==1) {
+        if (evt.getOperatorRole() == 1) {
             //角色为商家
             orderInfo.setCancelOperatorRole(1);
             orderInfo.setOrderStatus(4);
@@ -630,7 +656,7 @@ public class TradeService {
         msgEvt.setCancelReason(evt.getCancelReason());
         msgEvt.setBookName(bookInfo.getBookName());
         msgEvt.setOperatorName(operatorName);
-        if (evt.getOperatorRole()== 0) {//买家取消订单
+        if (evt.getOperatorRole() == 0) {//买家取消订单
             //发送邮件给卖家
             msgEvt.setOperatorRole(0);
             msgEvt.setUserEmail(bookInfo.getCreateUser());
@@ -669,7 +695,7 @@ public class TradeService {
             if (sellerInfo == null) {
                 return new ServiceResp().error("relative seller record not found");
             }
-            if(sellerInfo.getReleaseCommNum()==null){
+            if (sellerInfo.getReleaseCommNum() == null) {
                 sellerInfo.setReleaseCommNum(0);
             }
             sellerInfo.setReleaseCommNum(sellerInfo.getReleaseCommNum() - 1);
@@ -742,7 +768,7 @@ public class TradeService {
             return new ServiceResp().error("update order status error");
         }
         //发送邮件通知
-        OperateCancelOperationMsgEvt msgEvt=new OperateCancelOperationMsgEvt();
+        OperateCancelOperationMsgEvt msgEvt = new OperateCancelOperationMsgEvt();
         msgEvt.setOperation(evt.getOperation());
         msgEvt.setBookName(orderInfo.getBookName());
         msgEvt.setOperator(operator);
@@ -757,17 +783,17 @@ public class TradeService {
     /**
      * 删除订单记录
      */
-    public ServiceResp deleteOrderRecord(HttpServletRequest request,DeleteOrderRecordEvt evt){
+    public ServiceResp deleteOrderRecord(HttpServletRequest request, DeleteOrderRecordEvt evt) {
         OrderBean orderInfo = orderMapper.selectById(evt.getOrderNo());
         if (orderInfo == null) {
             return new ServiceResp().error("order information not found");
         }
         //查看用户角色
-        if(evt.getOperatorRole()==0){//买家
+        if (evt.getOperatorRole() == 0) {//买家
             orderInfo.setBuyerDisplay(1);
-        }else if(evt.getOperatorRole()==1){//卖家
+        } else if (evt.getOperatorRole() == 1) {//卖家
             orderInfo.setSellerDisplay(1);
-        }else {//管理员
+        } else {//管理员
             orderInfo.setStatus("D");
         }
         orderInfo.setUpdateUser((String) request.getAttribute("userNo"));

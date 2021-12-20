@@ -2,6 +2,7 @@ package com.CS353.cs353project.controller;
 
 
 import com.CS353.cs353project.param.evt.Comment.PublishBookReviewEvt;
+import com.CS353.cs353project.param.evt.Comment.QueryCommentEvt;
 import com.CS353.cs353project.param.evt.Comment.ReportCommentEvt;
 import com.CS353.cs353project.param.out.ServiceResp;
 import com.CS353.cs353project.service.CommentService;
@@ -54,6 +55,22 @@ public class CommentController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("report comment function error");
+            return new ServiceResp().error(e.getMessage());
+        }
+    }
+
+    /**
+     * 查看书评接口
+     */
+    @ResponseBody
+    @ApiOperation(value = "查看书评接口", notes = "")
+    @RequestMapping(value = "/queryComment", method = RequestMethod.POST)
+    public ServiceResp queryComment(@RequestBody QueryCommentEvt evt) {
+        try {
+            return commentService.queryComment(evt);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("query comment function error");
             return new ServiceResp().error(e.getMessage());
         }
     }

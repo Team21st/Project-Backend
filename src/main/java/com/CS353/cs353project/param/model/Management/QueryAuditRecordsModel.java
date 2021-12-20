@@ -2,30 +2,34 @@ package com.CS353.cs353project.param.model.Management;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class QueryAuditRecordsModel {
     //书本编码
     private String bookNo;
     //书名
-    public String bookName;
+    private String bookName;
     //书本图片
-    public String bookPicUrl;
+    private String bookPicUrl;
     //书本描述
-    public String bookDesc;
+    private String bookDesc;
     //书本价格
-    public double bookPrice;
+    private double bookPrice;
     //新旧程度
-    public Integer newOldDegree;
+    private Integer newOldDegree;
     //书本库存
-    public Integer bookStock;
+    private Integer bookStock;
     //创建人
-    public String createUser;
+    private String createUser;
     //创建时间
-    public String createTime;
+    private String createTime;
     //书本标签
-    public String bookTag;
+    private String bookTag;
     //审核状态
-    public String auditStatus;
+    private String auditStatus;
     //真实返回书本价格
-    public String truePrice;
+    private String truePrice;
+    //审核图书的图片
+    private List<String> picList;
 }
